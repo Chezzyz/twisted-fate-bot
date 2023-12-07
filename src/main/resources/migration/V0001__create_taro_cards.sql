@@ -1,4 +1,5 @@
-CREATE TABLE IF NOT EXISTS taro_cards
+DROP TABLE IF EXISTS taro_cards;
+CREATE TABLE taro_cards
 (
     id          SERIAL,
     rus_name    VARCHAR(255),
