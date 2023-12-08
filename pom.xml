@@ -112,7 +112,6 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <argLine>@{argLine} -Xshare:off</argLine>
-                    <parallel>all</parallel>
                 </configuration>
             </plugin>
             <plugin>
