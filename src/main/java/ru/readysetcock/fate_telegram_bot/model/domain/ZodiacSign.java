@@ -29,8 +29,8 @@ public class ZodiacSign extends BaseCatalogueDomain {
 
     public ZodiacSign(String rusName, String engName, String imagePath, LocalDate startDate, LocalDate endDate, String symbol, String description) {
         super(rusName, engName, imagePath);
-        this.startDate = DateFormatter.dayMonthFormatter(startDate);
-        this.endDate = DateFormatter.dayMonthFormatter(endDate);
+        this.startDate = DateFormatter.formatToDayMonth(startDate);
+        this.endDate = DateFormatter.formatToDayMonth(endDate);
         this.symbol = symbol;
         this.description = description;
     }

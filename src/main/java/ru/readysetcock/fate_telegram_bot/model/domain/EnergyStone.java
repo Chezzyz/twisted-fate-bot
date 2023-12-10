@@ -7,10 +7,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "stone_energy")
+@Table(name = "energy_stone")
 @NoArgsConstructor
 @Getter
-public class StoneEnergy extends BaseCatalogueDomain {
+public class EnergyStone extends BaseCatalogueDomain {
 
     @Column(name = "esoteric_description", nullable = false)
     private String esotericDescription;
@@ -18,7 +18,7 @@ public class StoneEnergy extends BaseCatalogueDomain {
     @Column(name = "real_description", nullable = false)
     private String realDescription;
 
-    public StoneEnergy(String rusName, String engName, String imagePath, String esotericDescription, String realDescription) {
+    public EnergyStone(String rusName, String engName, String imagePath, String esotericDescription, String realDescription) {
         super(rusName, engName, imagePath);
         this.esotericDescription = esotericDescription;
         this.realDescription = realDescription;

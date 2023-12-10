@@ -7,9 +7,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import ru.readysetcock.fate_telegram_bot.model.domain.StoneEnergy;
-import ru.readysetcock.fate_telegram_bot.repository.RepositoryTestConfig;
-import ru.readysetcock.fate_telegram_bot.repository.StoneEnergyRepository;
+import ru.readysetcock.fate_telegram_bot.model.domain.EnergyStone;
 
 import java.util.Optional;
 
@@ -24,14 +22,10 @@ public class StoneEnergyRepositoryTest {
 
     @Test
     public void saveStoneEnergyTest() {
-        StoneEnergy stoneEnergy = new StoneEnergy("rusName", "engName", "imagePath", "","");
-
-        StoneEnergy savedStoneEnergy = repository.save(stoneEnergy);
-        Integer id = savedStoneEnergy.getId();
-
-        Optional<StoneEnergy> found = repository.findById(id);
-
+        EnergyStone stoneEnergy = new EnergyStone("rusName", "engName", "imagePath", "", "");
+        repository.save(stoneEnergy);
+        Optional<EnergyStone> found = repository.findById(stoneEnergy.getId());
         Assertions.assertTrue(found.isPresent());
-        Assertions.assertEquals(savedStoneEnergy, found.get());
+        Assertions.assertEquals(stoneEnergy, found.get());
     }
 }

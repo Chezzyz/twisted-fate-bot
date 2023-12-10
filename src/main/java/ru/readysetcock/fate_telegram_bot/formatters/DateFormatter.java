@@ -6,11 +6,12 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class DateFormatter {
-   private static final DateTimeFormatter DAY_MONTH_FORMATTER = DateTimeFormatter.ofPattern("MM.dd");
+    private static final DateTimeFormatter FORMAT_DATE = DateTimeFormatter.ofPattern("MM.dd");
 
-   public static String dayMonthFormatter(LocalDate date) {
-      return date.format(DAY_MONTH_FORMATTER);
-   }
+    public static String formatToDayMonth(LocalDate date) {
+        return date.format(FORMAT_DATE);
+    }
 }

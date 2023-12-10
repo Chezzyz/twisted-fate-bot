@@ -1,12 +1,12 @@
-DROP TABLE IF EXISTS stone_energy;
-CREATE TABLE stone_energy
+DROP TABLE IF EXISTS energy_stone;
+CREATE TABLE energy_stone
 (
-    id                   SERIAL ,
-    rus_name             text NOT NULL,
-    eng_name             text NOT NULL,
-    image_path           text NOT NULL,
-    esoteric_description VARCHAR(255) NOT NULL,
-    real_description     VARCHAR(255) NOT NULL,
+    id                   SERIAL,
+    rus_name             VARCHAR(20)  NOT NULL,
+    eng_name             VARCHAR(20)  NOT NULL,
+    image_path           VARCHAR(255) NOT NULL,
+    esoteric_description text         NOT NULL,
+    real_description     text         NOT NULL,
     PRIMARY KEY (id),
     UNIQUE (id)
-);
+)                    
