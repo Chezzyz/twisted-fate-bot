@@ -22,7 +22,7 @@ class GameCardRepositoryTest {
 
     @Test
     void saveGameCardTest() {
-        GameCard card = new GameCard("rusName", "engName", "imagePath", "example", ">", "asspull");
+        GameCard card = new GameCard("rusName", "engName", "imagePath", "example", "asspull");
 
         Integer id = repository.save(card).getId();
         Optional<GameCard> found = repository.findById(id);
