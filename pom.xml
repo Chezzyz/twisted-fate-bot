@@ -23,6 +23,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
+
+
     <dependencies>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -90,6 +92,7 @@
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>
+            <version>9.21.0</version>
         </dependency>
 
         <dependency>
@@ -106,7 +109,16 @@
     </dependencies>
 
     <build>
+
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <argLine>@{argLine} -Xshare:off</argLine>
+                </configuration>
+            </plugin>
+
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
@@ -120,6 +132,7 @@
                     </excludes>
                 </configuration>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -129,6 +142,7 @@
                     <target>17</target>
                 </configuration>
             </plugin>
+
             <plugin>
                 <groupId>com.github.ulisesbocchio</groupId>
                 <artifactId>jasypt-maven-plugin</artifactId>
@@ -136,5 +150,6 @@
             </plugin>
         </plugins>
     </build>
+
 
 </project>
