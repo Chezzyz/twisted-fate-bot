@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository;
 import ru.readysetcock.fate_telegram_bot.model.domain.EnergyStone;
 
 @Repository
-public interface StoneEnergyRepository extends CrudRepository<EnergyStone, Integer> {
+public interface EnergyStoneRepository extends CrudRepository<EnergyStone, Integer> {
 }

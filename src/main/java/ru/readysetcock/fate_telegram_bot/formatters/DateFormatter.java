@@ -9,9 +9,9 @@ import java.time.format.DateTimeFormatter;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class DateFormatter {
-    private static final DateTimeFormatter FORMAT_DATE = DateTimeFormatter.ofPattern("MM.dd");
+    public static final DateTimeFormatter MONTH_DAY_FORMATTER = DateTimeFormatter.ofPattern("MM.dd");
 
-    public static String formatToDayMonth(LocalDate date) {
-        return date.format(FORMAT_DATE);
+    public static String format(LocalDate date, DateTimeFormatter formatter) {
+        return date.format(formatter);
     }
 }

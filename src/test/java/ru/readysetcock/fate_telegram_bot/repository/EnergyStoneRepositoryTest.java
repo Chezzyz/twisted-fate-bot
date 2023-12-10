@@ -15,16 +15,19 @@ import java.util.Optional;
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ContextConfiguration(classes = RepositoryTestConfig.class)
 @ActiveProfiles("test")
-public class StoneEnergyRepositoryTest {
+public class EnergyStoneRepositoryTest {
 
     @Autowired
-    private StoneEnergyRepository repository;
+    private EnergyStoneRepository repository;
 
     @Test
     public void saveStoneEnergyTest() {
         EnergyStone stoneEnergy = new EnergyStone("rusName", "engName", "imagePath", "", "");
-        repository.save(stoneEnergy);
-        Optional<EnergyStone> found = repository.findById(stoneEnergy.getId());
+
+        Integer id = repository.save(stoneEnergy).getId();
+        Optional<EnergyStone> found = repository.findById(id);
+
+        Assertions.assertTrue(repository.existsById(id));
         Assertions.assertTrue(found.isPresent());
         Assertions.assertEquals(stoneEnergy, found.get());
     }
