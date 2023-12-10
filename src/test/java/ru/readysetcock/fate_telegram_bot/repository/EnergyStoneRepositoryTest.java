@@ -15,13 +15,13 @@ import java.util.Optional;
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ContextConfiguration(classes = RepositoryTestConfig.class)
 @ActiveProfiles("test")
-public class EnergyStoneRepositoryTest {
+class EnergyStoneRepositoryTest {
 
     @Autowired
     private EnergyStoneRepository repository;
 
     @Test
-    public void saveStoneEnergyTest() {
+    void saveStoneEnergyTest() {
         EnergyStone stoneEnergy = new EnergyStone("rusName", "engName", "imagePath", "", "");
 
         Integer id = repository.save(stoneEnergy).getId();

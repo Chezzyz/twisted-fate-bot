@@ -11,16 +11,16 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class TaroCardEntity extends BaseCatalogueDomain {
-    @Column(name="card_number", nullable = false)
+    @Column(name = "card_number", nullable = false)
     private Integer cardNumber;
 
-    @Column(name="description")
+    @Column(name = "description")
     private String description;
 
-    @Column(name="features")
+    @Column(name = "features")
     private String features;
 
-    public TaroCardEntity(String rusName, String engName, String imagePath, Integer cardNumber, String description, String features){
+    public TaroCardEntity(String rusName, String engName, String imagePath, Integer cardNumber, String description, String features) {
         super(rusName, engName, imagePath);
         this.cardNumber = cardNumber;
         this.description = description;

@@ -11,7 +11,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Getter
 public class RuneEntity extends BaseCatalogueDomain {
-
     @Column(name = "symbol", nullable = false)
     private String symbol;
 
@@ -21,9 +20,7 @@ public class RuneEntity extends BaseCatalogueDomain {
     @Column(name = "description", nullable = false)
     private String description;
 
-
-
-    public RuneEntity(String rusName, String engName, String imagePath, String symbol, String translation, String description){
+    public RuneEntity(String rusName, String engName, String imagePath, String symbol, String translation, String description) {
         super(rusName, engName, imagePath);
         this.symbol = symbol;
         this.translation = translation;

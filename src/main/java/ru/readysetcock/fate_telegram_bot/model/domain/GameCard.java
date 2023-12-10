@@ -10,17 +10,12 @@ import lombok.NoArgsConstructor;
 @Table(name = "game_cards")
 @NoArgsConstructor
 @Getter
-public class GameCard extends BaseCatalogueDomain{
-
-    @Column(name = "card_value")
+public class GameCard extends BaseCatalogueDomain {
+    @Column(name = "card_value", nullable = false)
     private String cardValue;
 
-    @Column(name = "description")
-    private String description;
-
-    public GameCard(String rusName, String engName, String imagePath, String cardValue, String description) {
+    public GameCard(String rusName, String engName, String imagePath, String cardValue) {
         super(rusName, engName, imagePath);
         this.cardValue = cardValue;
-        this.description = description;
     }
 }

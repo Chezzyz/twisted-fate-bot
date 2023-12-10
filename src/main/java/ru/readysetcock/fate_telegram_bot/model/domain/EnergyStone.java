@@ -7,11 +7,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "energy_stone")
+@Table(name = "energy_stones")
 @NoArgsConstructor
 @Getter
 public class EnergyStone extends BaseCatalogueDomain {
-
     @Column(name = "esoteric_description", nullable = false)
     private String esotericDescription;
 

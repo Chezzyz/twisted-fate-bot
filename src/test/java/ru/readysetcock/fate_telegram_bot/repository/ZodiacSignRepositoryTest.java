@@ -15,13 +15,13 @@ import java.util.Optional;
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ContextConfiguration(classes = RepositoryTestConfig.class)
 @ActiveProfiles("test")
-public class ZodiacSignRepositoryTest {
+class ZodiacSignRepositoryTest {
 
     @Autowired
     private ZodiacSignRepository repository;
 
     @Test
-    public void saveZodiacSignTest() {
+    void saveZodiacSignTest() {
         LocalDate startDate = LocalDate.of(2000, 1, 1);
         LocalDate endDate = LocalDate.of(2000, 12, 31);
         ZodiacSign zodiacSign = new ZodiacSign("rusName", "engName", "imagePath", startDate, endDate, "Symbol", "Description");

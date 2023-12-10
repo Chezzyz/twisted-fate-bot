@@ -14,7 +14,6 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Getter
 public class ZodiacSign extends BaseCatalogueDomain {
-
     @Column(name = "start_date", nullable = false)
     private String startDate;
 
