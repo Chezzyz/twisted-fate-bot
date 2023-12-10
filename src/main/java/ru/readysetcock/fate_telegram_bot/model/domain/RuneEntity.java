@@ -7,22 +7,26 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "runes_entities")
+@Table(name = "runes")
 @NoArgsConstructor
 @Getter
 public class RuneEntity extends BaseCatalogueDomain {
 
-    @Column(name = "runes_string", nullable = false)
+    @Column(name = "symbol", nullable = false)
     private String symbol;
-    private String meaning;
+
+    @Column(name = "translation", nullable = false)
+    private String translation;
+
+    @Column(name = "description", nullable = false)
     private String description;
 
 
 
-    public RuneEntity(String rusName, String engName, String imagePath, String symbol, String meaning, String descripton){
+    public RuneEntity(String rusName, String engName, String imagePath, String symbol, String translation, String description){
         super(rusName, engName, imagePath);
         this.symbol = symbol;
-        this.meaning = meaning;
-        this.description = descripton;
+        this.translation = translation;
+        this.description = description;
     }
 }
