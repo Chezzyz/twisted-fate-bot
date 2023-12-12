@@ -7,7 +7,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import ru.readysetcock.fate_telegram_bot.model.domain.TaroCardEntity;
+import ru.readysetcock.fate_telegram_bot.model.domain.TaroCard;
 
 import java.util.Optional;
 
@@ -22,10 +22,10 @@ class TaroCardRepositoryTest {
 
     @Test
     void saveExampleEntityTest() {
-        TaroCardEntity taroCard = new TaroCardEntity("Шут","The Fool","classpath:images/Fool.jpg",0,"description","features");
+        TaroCard taroCard = new TaroCard("Шут","The Fool","classpath:images/Fool.jpg",0,"description","features");
 
         Integer id = repository.save(taroCard).getId();
-        Optional<TaroCardEntity> found = repository.findById(id);
+        Optional<TaroCard> found = repository.findById(id);
 
         Assertions.assertTrue(repository.existsById(id));
         Assertions.assertTrue(found.isPresent());

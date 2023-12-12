@@ -8,7 +8,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import ru.readysetcock.fate_telegram_bot.model.domain.RuneEntity;
+import ru.readysetcock.fate_telegram_bot.model.domain.Rune;
 
 import java.util.Optional;
 
@@ -23,10 +23,10 @@ class RuneRepositoryTest {
 
     @Test
     void saveRuneEntityTest() {
-        RuneEntity rune = new RuneEntity("rusName", "engName", "imagePath", "symbol", "meaning", "description");
+        Rune rune = new Rune("rusName", "engName", "imagePath", "symbol", "meaning", "description");
 
         Integer id = repository.save(rune).getId();
-        Optional<RuneEntity> found = repository.findById(id);
+        Optional<Rune> found = repository.findById(id);
 
         Assertions.assertTrue(repository.existsById(id));
         Assertions.assertTrue(found.isPresent());
