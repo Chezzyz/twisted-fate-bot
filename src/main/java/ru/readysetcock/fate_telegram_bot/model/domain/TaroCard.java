@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "taro_cards")
 @Getter
 @NoArgsConstructor
-public class TaroCardEntity extends BaseCatalogueDomain {
+public class TaroCard extends BaseCatalogueDomain {
     @Column(name = "card_number", nullable = false)
     private Integer cardNumber;
 
@@ -20,7 +20,7 @@ public class TaroCardEntity extends BaseCatalogueDomain {
     @Column(name = "features")
     private String features;
 
-    public TaroCardEntity(String rusName, String engName, String imagePath, Integer cardNumber, String description, String features) {
+    public TaroCard(String rusName, String engName, String imagePath, Integer cardNumber, String description, String features) {
         super(rusName, engName, imagePath);
         this.cardNumber = cardNumber;
         this.description = description;
