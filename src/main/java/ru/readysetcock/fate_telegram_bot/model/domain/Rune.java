@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "runes")
 @NoArgsConstructor
 @Getter
-public class RuneEntity extends BaseCatalogueDomain {
+public class Rune extends BaseCatalogueDomain {
     @Column(name = "symbol", nullable = false)
     private String symbol;
 
@@ -20,7 +20,7 @@ public class RuneEntity extends BaseCatalogueDomain {
     @Column(name = "description", nullable = false)
     private String description;
 
-    public RuneEntity(String rusName, String engName, String imagePath, String symbol, String translation, String description) {
+    public Rune(String rusName, String engName, String imagePath, String symbol, String translation, String description) {
         super(rusName, engName, imagePath);
         this.symbol = symbol;
         this.translation = translation;

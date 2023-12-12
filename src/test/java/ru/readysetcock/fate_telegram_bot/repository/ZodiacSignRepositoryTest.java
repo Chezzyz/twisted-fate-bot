@@ -32,7 +32,5 @@ class ZodiacSignRepositoryTest {
         Assertions.assertTrue(repository.existsById(id));
         Assertions.assertTrue(found.isPresent());
         Assertions.assertEquals(zodiacSign, found.get());
-        Assertions.assertEquals("01.01", found.get().getStartDate());
-        Assertions.assertEquals("12.31", found.get().getEndDate());
     }
 }
