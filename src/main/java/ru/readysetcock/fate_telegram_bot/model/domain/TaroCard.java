@@ -23,8 +23,8 @@ public class TaroCard extends BaseCatalogueDomain {
     @Column(name = "symbol")
     private String symbol;
 
-    public TaroCard(String rusName, String engName, String imagePath, Integer cardNumber, String description, String features, String symbol) {
-        super(rusName, engName, imagePath);
+    public TaroCard(String rusName, String engName, String imageFileId, Integer cardNumber, String description, String features, String symbol) {
+        super(rusName, engName, imageFileId);
         this.cardNumber = cardNumber;
         this.description = description;
         this.features = features;
