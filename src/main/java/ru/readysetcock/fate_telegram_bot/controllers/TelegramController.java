@@ -6,21 +6,24 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
+import org.telegram.telegrambots.meta.api.methods.send.SendMediaGroup;
+import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import ru.readysetcock.fate_telegram_bot.messages.Response;
 import ru.readysetcock.fate_telegram_bot.services.BotServicesController;
 
 import java.io.Serializable;
-import java.util.List;
 
 @Component
 @Slf4j
 public class TelegramController extends TelegramLongPollingBot {
     private final String botName;
     private final BotServicesController botServicesController;
-    public static final String SESSION_ID_TAG = "sid";
+    private static final String SESSION_ID_TAG = "sid";
+    private static final String EXECUTE_ERROR_MESSAGE = "При вызове execute(method) произошла ошибка:";
 
     public TelegramController(@Value("${bot.api.token}") String botToken, @Value("${bot.name}") String botName, BotServicesController botServicesController) {
         super(botToken);
@@ -32,8 +35,7 @@ public class TelegramController extends TelegramLongPollingBot {
     public void onUpdateReceived(Update update) {
         MDC.put(SESSION_ID_TAG, getSid(update));
 
-        List<BotApiMethod<? extends Serializable>> responses = botServicesController.getResponse(update);
-        responses.forEach(this::send);
+        sendAll(botServicesController.getResponse(update));
 
         MDC.remove(SESSION_ID_TAG);
     }
@@ -55,12 +57,42 @@ public class TelegramController extends TelegramLongPollingBot {
         return sid;
     }
 
-    private void send(BotApiMethod<? extends Serializable> method) {
+    private void sendAll(Response response){
+        if(response.methods() != null){
+            response.methods().forEach(this::sendMessage);
+        }
+        if(response.photo() != null){
+            sendPhoto(response.photo());
+        }
+        if(response.photos() != null){
+            sendPhotoGroup(response.photos());
+        }
+    }
+
+    private void sendMessage(BotApiMethod<? extends Serializable> method) {
         try {
             log.info("Отправляю метод {}", method.getClass().getSimpleName());
             super.execute(method);
         } catch (TelegramApiException e) {
-            log.error("При вызове execute(method) произошла ошибка:", e);
+            log.error(EXECUTE_ERROR_MESSAGE, e);
+        }
+    }
+
+    private void sendPhoto(SendPhoto method){
+        try {
+            log.info("Отправляю метод SendPhoto");
+            super.execute(method);
+        } catch (TelegramApiException e) {
+            log.error(EXECUTE_ERROR_MESSAGE, e);
+        }
+    }
+
+    private void sendPhotoGroup(SendMediaGroup method){
+        try {
+            log.info("Отправляю метод SendMediaGroup");
+            super.execute(method);
+        } catch (TelegramApiException e) {
+            log.error(EXECUTE_ERROR_MESSAGE, e);
         }
     }
 

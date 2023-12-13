@@ -14,8 +14,8 @@ public class GameCard extends BaseCatalogueDomain {
     @Column(name = "card_value", nullable = false)
     private String cardValue;
 
-    public GameCard(String rusName, String engName, String imagePath, String cardValue) {
-        super(rusName, engName, imagePath);
+    public GameCard(String rusName, String engName, String imageFileId, String cardValue) {
+        super(rusName, engName, imageFileId);
         this.cardValue = cardValue;
     }
 }

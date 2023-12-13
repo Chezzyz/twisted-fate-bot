@@ -20,8 +20,8 @@ public class Rune extends BaseCatalogueDomain {
     @Column(name = "description", nullable = false)
     private String description;
 
-    public Rune(String rusName, String engName, String imagePath, String symbol, String translation, String description) {
-        super(rusName, engName, imagePath);
+    public Rune(String rusName, String engName, String imageFileId, String symbol, String translation, String description) {
+        super(rusName, engName, imageFileId);
         this.symbol = symbol;
         this.translation = translation;
         this.description = description;
