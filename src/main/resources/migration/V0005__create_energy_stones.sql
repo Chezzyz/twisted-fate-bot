@@ -6,7 +6,7 @@ CREATE TABLE energy_stones
     eng_name             varchar(255) NOT NULL,
     real_description     text         NOT NULL,
     esoteric_description text         NOT NULL,
-    image_path           varchar(255) NOT NULL,
+    image_file_id        varchar(255) NOT NULL,
     PRIMARY KEY (id),
     UNIQUE (id)
 );

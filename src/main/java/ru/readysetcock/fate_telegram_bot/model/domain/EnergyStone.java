@@ -17,8 +17,8 @@ public class EnergyStone extends BaseCatalogueDomain {
     @Column(name = "real_description", nullable = false)
     private String realDescription;
 
-    public EnergyStone(String rusName, String engName, String imagePath, String esotericDescription, String realDescription) {
-        super(rusName, engName, imagePath);
+    public EnergyStone(String rusName, String engName, String imageFileId, String esotericDescription, String realDescription) {
+        super(rusName, engName, imageFileId);
         this.esotericDescription = esotericDescription;
         this.realDescription = realDescription;
     }

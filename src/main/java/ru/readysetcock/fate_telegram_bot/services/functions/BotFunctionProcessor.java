@@ -1,10 +1,7 @@
 package ru.readysetcock.fate_telegram_bot.services.functions;
 
-import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
-
-import java.io.Serializable;
-import java.util.List;
+import ru.readysetcock.fate_telegram_bot.messages.Response;
 
 /**
  * Интерфейс обработки данных для функций бота.
@@ -25,5 +22,5 @@ public interface BotFunctionProcessor {
      * @return объект для отправки клиенту
      * @see ru.readysetcock.fate_telegram_bot.messages.BotApiMethodFactory BotApiMethodFactory
      */
-    List<BotApiMethod<? extends Serializable>> process(CallbackQuery query);
+    Response process(CallbackQuery query);
 }

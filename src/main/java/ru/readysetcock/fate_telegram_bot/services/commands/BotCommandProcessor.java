@@ -1,10 +1,7 @@
 package ru.readysetcock.fate_telegram_bot.services.commands;
 
-import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.Message;
-
-import java.io.Serializable;
-import java.util.List;
+import ru.readysetcock.fate_telegram_bot.messages.Response;
 
 /**
  * Интерфейс обработчика комманд бота.
@@ -25,5 +22,5 @@ public interface BotCommandProcessor {
      * @return объект для отправки клиенту
      * @see ru.readysetcock.fate_telegram_bot.messages.BotApiMethodFactory BotApiMethodFactory
      */
-    List<BotApiMethod<? extends Serializable>> process(Message message);
+    Response process(Message message);
 }
