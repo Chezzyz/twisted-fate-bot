@@ -8,11 +8,11 @@ CREATE TABLE taro_cards
     card_number integer      NOT NULL,
     features    text,
     description text,
-    imageFileId  varchar(255) NOT NULL,
+    image_file_id  varchar(255) NOT NULL,
     PRIMARY KEY (id),
     UNIQUE (id)
 );
-INSERT INTO taro_cards(card_number, rus_name, eng_name, imageFileId, symbol, description, features)
+INSERT INTO taro_cards(card_number, rus_name, eng_name, image_file_id, symbol, description, features)
 VALUES (0, 'Шут', 'The Fool', 'AgACAgIAAxkBAAIB32V6AbAZqwlCdyOveVroefHkpDYiAAKj1TEbA7PQSwMr692-DtbaAQADAgADcwADMwQ','🤡',
         'Шут означает новое начало. Он пробуждает в нас любопытного ребенка, заставляет сделать что-то такое, от чего захватывает дух, выйти из зоны комфорта и проверить предел собственных возможностей. Шут не зависит от общественных условностей, стереотипов и штампов',
         'внутренняя свобода, жизнь здесь и сейчас, любопытство, спонтанность'),
