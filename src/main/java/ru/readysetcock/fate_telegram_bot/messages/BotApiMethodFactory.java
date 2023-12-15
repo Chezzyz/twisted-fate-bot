@@ -3,9 +3,11 @@ package ru.readysetcock.fate_telegram_bot.messages;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
+import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.SendMediaGroup;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.media.InputMedia;
@@ -59,17 +61,23 @@ public class BotApiMethodFactory {
      * @param spoiler использовать спойлер
      * @return объект для отправки клиенту
      */
-    public static SendPhoto messageWithPhoto(Long chatId, String fileId, String text, boolean spoiler) {
+    public static SendPhoto messageWithPhoto(Long chatId, String fileId, String text, boolean spoiler, InlineKeyboardMarkup markup) {
         return SendPhoto.builder()
                 .chatId(chatId)
                 .caption(text)
                 .hasSpoiler(spoiler)
                 .photo(new InputFile(fileId))
+                .replyMarkup(markup)
+                .parseMode(ParseMode.HTML)
                 .build();
     }
 
+    public static SendPhoto messageWithPhoto(Long chatId, String fileId, String text, InlineKeyboardMarkup markup) {
+        return messageWithPhoto(chatId, fileId, text, false, markup);
+    }
+
     public static SendPhoto messageWithPhoto(Long chatId, String fileId, String text) {
-        return messageWithPhoto(chatId, fileId, text, false);
+        return messageWithPhoto(chatId, fileId, text, false, null);
     }
 
     /**
@@ -137,4 +145,17 @@ public class BotApiMethodFactory {
                 .build();
     }
 
+    /**
+     * Удаляет существующее сообщение.
+     *
+     * @param chatId    идентификатор чата
+     * @param messageId идентификатор сообщения
+     * @return объект для отправки клиенту
+     */
+    public static DeleteMessage deleteMessage(Long chatId, Integer messageId) {
+        return DeleteMessage.builder()
+                .chatId(chatId)
+                .messageId(messageId)
+                .build();
+    }
 }

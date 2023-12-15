@@ -82,5 +82,4 @@ public class InlineKeyboardBuilder {
                 .callbackData(data)
                 .build();
     }
-
 }

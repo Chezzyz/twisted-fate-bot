@@ -1,9 +1,8 @@
 package ru.readysetcock.fate_telegram_bot.services.functions;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
-import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
@@ -13,6 +12,8 @@ import ru.readysetcock.fate_telegram_bot.messages.InlineKeyboardBuilder;
 import ru.readysetcock.fate_telegram_bot.messages.Response;
 import ru.readysetcock.fate_telegram_bot.model.domain.TaroCard;
 import ru.readysetcock.fate_telegram_bot.repository.TaroCardRepository;
+import ru.readysetcock.fate_telegram_bot.services.commands.BotCommand;
+import ru.readysetcock.fate_telegram_bot.services.commands.BotCommandProcessor;
 
 import java.util.*;
 import java.util.List;
@@ -22,8 +23,8 @@ import static ru.readysetcock.fate_telegram_bot.messages.InlineKeyboardBuilder.b
 import static ru.readysetcock.fate_telegram_bot.messages.InlineKeyboardBuilder.rowOf;
 
 @Service
-@AllArgsConstructor
-public class TaroCatalogueProcessor implements BotFunctionProcessor {
+@RequiredArgsConstructor
+public class TaroCatalogueProcessor implements BotFunctionProcessor, BotCommandProcessor {
 
     private final TaroCardRepository repository;
 
@@ -32,42 +33,61 @@ public class TaroCatalogueProcessor implements BotFunctionProcessor {
         return BotFunction.TAROS;
     }
 
-    private Response sendButtonsWithCards(CallbackQuery query) {
-        List<TaroCard> taroCardList = new ArrayList<>();
-        List<InlineKeyboardButton> buttons = new ArrayList<>();
-        repository.findAll().forEach(taroCardList::add);
-        for (int i = 0; i < taroCardList.size(); i++) {
-            buttons.add(button(taroCardList.get(i).getRusName(), taroCardList.get(i).getSymbol(), BotFunction.TAROS.getFunctionName() + "/" + i));
+    @Override
+    public BotCommand getCommand() {
+        return BotCommand.TAROS;
+    }
+
+    @Override
+    public Response process(Message message) {
+        return sendButtonsWithCards(message);
+    }
+
+    @Override
+    public Response process(CallbackQuery query) {
+        String data = query.getData();
+        if (data.equals(BotFunction.TAROS.getFunctionName())) {
+            return editToButtonsWithCards(query);
+        } else if (data.startsWith(BotFunction.TAROS.getFunctionName() + "/id/")) {
+            return sendTaroCard(query);
+        } else if (data.startsWith(BotFunction.TAROS.getFunctionName() + "/delete")) {
+            return deleteCard(query);
         }
-        buttons.add(button("⬅ Назад", BotFunction.CATALOGUE.getFunctionName()));
-        InlineKeyboardMarkup keyboard = InlineKeyboardBuilder.createKeyboardOf(buttons);
+        return new Response();
+    }
+
+    private Response editToButtonsWithCards(CallbackQuery query) {
         Message message = query.getMessage();
-        return new Response(BotApiMethodFactory.messageEdit(message.getChatId(), message.getMessageId(), "Выберите карту", keyboard));
+        return new Response(BotApiMethodFactory.messageEdit(message.getChatId(), message.getMessageId(), "Выберите карту", getAllCardsKeyboard()));
+    }
+
+    private Response sendButtonsWithCards(Message message) {
+        return new Response(BotApiMethodFactory.inlineKeyboardMessage(message.getChatId(), "Выберите карту", getAllCardsKeyboard()));
+    }
+
+    private Response deleteCard(CallbackQuery query) {
+        Message message = query.getMessage();
+        return new Response(BotApiMethodFactory.deleteMessage(message.getChatId(), message.getMessageId()));
     }
 
     private Response sendTaroCard(CallbackQuery query) {
-        int id = Integer.parseInt(query.getData().replace(BotFunction.TAROS.getFunctionName() + "/", "")) + 1;
+        int id = Integer.parseInt(query.getData().replace(BotFunction.TAROS.getFunctionName() + "/id/", ""));
         TaroCard taroCard = getTaroCardById(id);
         if (taroCard == null) {
             return new Response(BotApiMethodFactory.callbackQueryAnswer(query.getId()));
         }
-        Message message = query.getMessage();
-        SendPhoto sendPhoto = BotApiMethodFactory.messageWithPhoto(message.getChatId(), taroCard.getImageFileId(),
-                String.format("Карта: %s (%s) %s%n%nОписание: %s%n%nХарактеристики:%n%s",
-                        taroCard.getRusName(),
-                        taroCard.getEngName(),
-                        taroCard.getSymbol(),
-                        taroCard.getDescription(),
-                        getPrettyFeaturesById(taroCard)));
+
+        return deleteOnlyCardResponse(taroCard, query);
+    }
+
+    private Response deleteOnlyCardResponse(TaroCard taroCard, CallbackQuery query) {
+        SendPhoto sendPhoto = BotApiMethodFactory.messageWithPhoto(query.getMessage().getChatId(), taroCard.getImageFileId(),
+                createTaroDescriptionMessage(taroCard),
+                InlineKeyboardBuilder.createKeyboardOf(rowOf(button("⬅ Назад", "%s/delete".formatted(BotFunction.TAROS.getFunctionName())))));
+
         return Response.builder()
                 .photo(sendPhoto)
-                .methods(Arrays.asList(
-                        DeleteMessage.builder()
-                                .chatId(message.getChatId())
-                                .messageId(message.getMessageId())
-                                .build(),
-                        BotApiMethodFactory.inlineKeyboardMessage(message.getChatId(), "\uD83D\uDC47\uD83C\uDFFB", InlineKeyboardBuilder.createKeyboardOf(
-                                rowOf(button("⬅ Назад", BotFunction.TAROS.getFunctionName()))))))
+                .methods(Collections.singletonList(BotApiMethodFactory.callbackQueryAnswer(query.getId())))
                 .build();
     }
 
@@ -75,18 +95,29 @@ public class TaroCatalogueProcessor implements BotFunctionProcessor {
         return repository.findById(id).orElse(null);
     }
 
-    private String getPrettyFeaturesById(TaroCard card) {
-        return Arrays.stream(
-                card.getFeatures().split(", ")).map("❇️ %s%n"::formatted).collect(Collectors.joining());
+    private InlineKeyboardMarkup getAllCardsKeyboard() {
+        List<TaroCard> taroCardList = new ArrayList<>();
+        List<InlineKeyboardButton> buttons = new ArrayList<>();
+        repository.findAll().forEach(taroCardList::add);
+        for (int i = 0; i < taroCardList.size(); i++) {
+            buttons.add(button(taroCardList.get(i).getRusName(), taroCardList.get(i).getSymbol(), BotFunction.TAROS.getFunctionName() + "/id/" + (i + 1)));
+        }
+        buttons.add(button("⬅ Назад", BotFunction.CATALOGUE.getFunctionName()));
+        return InlineKeyboardBuilder.createKeyboardOf(buttons);
     }
 
-    @Override
-    public Response process(CallbackQuery query) {
-        if (query.getData().equals(BotFunction.TAROS.getFunctionName())) {
-            return sendButtonsWithCards(query);
-        } else if (query.getData().contains(BotFunction.TAROS.getFunctionName())) {
-            return sendTaroCard(query);
-        }
-        return null;
+    private String getPrettyFeaturesById(TaroCard card) {
+        return Arrays.stream(
+                card.getFeatures().split(", ")).map("⭐️ %s%n"::formatted).collect(Collectors.joining());
+    }
+
+    private String createTaroDescriptionMessage(TaroCard taroCard) {
+        return """
+                <b>Название</b>: %s (%s) %s
+                        
+                <b>Описание</b>: %s
+                        
+                <b>Характеристики</b>:
+                %s""".formatted(taroCard.getRusName(), taroCard.getEngName(), taroCard.getSymbol(), taroCard.getDescription(), getPrettyFeaturesById(taroCard));
     }
 }
