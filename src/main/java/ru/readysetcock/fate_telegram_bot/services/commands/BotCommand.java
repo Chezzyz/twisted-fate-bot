@@ -10,7 +10,14 @@ import lombok.Getter;
 public enum BotCommand {
     MENU("/menu"),
     START("/start"),
-    HELP("/help");
+    HELP("/help"),
+    TAROS("/taros"),
+    DIVINATION("/divination"),
+    CHAKRAS("/chakras"),
+    ARCANES("/arcanes"),
+    CATALOGUE("/catalogue"),
+    ZODIACS("/zodiacs");
+
 
     @Getter
     private final String commandText;

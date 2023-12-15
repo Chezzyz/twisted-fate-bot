@@ -12,6 +12,7 @@ import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import ru.readysetcock.fate_telegram_bot.messages.BotApiMethodFactory;
 import ru.readysetcock.fate_telegram_bot.messages.Response;
 import ru.readysetcock.fate_telegram_bot.services.BotServicesController;
 
@@ -57,15 +58,15 @@ public class TelegramController extends TelegramLongPollingBot {
         return sid;
     }
 
-    private void sendAll(Response response){
-        if(response.methods() != null){
-            response.methods().forEach(this::sendMessage);
-        }
-        if(response.photo() != null){
+    private void sendAll(Response response) {
+        if (response.photo() != null) {
             sendPhoto(response.photo());
         }
-        if(response.photos() != null){
+        if (response.photos() != null) {
             sendPhotoGroup(response.photos());
+        }
+        if (response.methods() != null) {
+            response.methods().forEach(this::sendMessage);
         }
     }
 
@@ -78,7 +79,7 @@ public class TelegramController extends TelegramLongPollingBot {
         }
     }
 
-    private void sendPhoto(SendPhoto method){
+    private void sendPhoto(SendPhoto method) {
         try {
             log.info("Отправляю метод SendPhoto");
             super.execute(method);
@@ -87,7 +88,7 @@ public class TelegramController extends TelegramLongPollingBot {
         }
     }
 
-    private void sendPhotoGroup(SendMediaGroup method){
+    private void sendPhotoGroup(SendMediaGroup method) {
         try {
             log.info("Отправляю метод SendMediaGroup");
             super.execute(method);
