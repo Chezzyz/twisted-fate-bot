@@ -15,19 +15,18 @@ public abstract class BaseCatalogueDomain {
     @Column(name = "id")
     private Integer id;
 
-    @Column(name = "rus_name")
+    @Column(name = "rus_name", nullable = false)
     private String rusName;
 
-    @Column(name = "eng_name")
+    @Column(name = "eng_name", nullable = false)
     private String engName;
 
-    @Column(name = "image_path")
-    private String imagePath;
+    @Column(name = "image_file_id")
+    private String imageFileId;
 
-
-    public BaseCatalogueDomain(String rusName, String engName, String imagePath) {
+    protected BaseCatalogueDomain(String rusName, String engName, String imageFileId) {
         this.rusName = rusName;
         this.engName = engName;
-        this.imagePath = imagePath;
+        this.imageFileId = imageFileId;
     }
 }

@@ -3,7 +3,9 @@ target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
-
+.jpb/
+.idea/jpa-buddy.xml
+.idea/sonarlint/
 ### IntelliJ IDEA ###
 .idea/modules.xml
 .idea/jarRepositories.xml

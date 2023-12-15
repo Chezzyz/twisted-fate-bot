@@ -1,0 +1,47 @@
+package ru.readysetcock.fate_telegram_bot.services.commands;
+
+import org.springframework.stereotype.Service;
+import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
+import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import ru.readysetcock.fate_telegram_bot.messages.BotApiMethodFactory;
+import ru.readysetcock.fate_telegram_bot.messages.InlineKeyboardBuilder;
+import ru.readysetcock.fate_telegram_bot.messages.Response;
+import ru.readysetcock.fate_telegram_bot.services.functions.BotFunction;
+import ru.readysetcock.fate_telegram_bot.services.functions.BotFunctionProcessor;
+
+import static ru.readysetcock.fate_telegram_bot.messages.InlineKeyboardBuilder.button;
+import static ru.readysetcock.fate_telegram_bot.messages.InlineKeyboardBuilder.rowOf;
+
+@Service
+public class MenuProcessor implements BotCommandProcessor, BotFunctionProcessor {
+    @Override
+    public BotCommand getCommand() {
+        return BotCommand.MENU;
+    }
+
+    @Override
+    public BotFunction getFunction() {
+        return BotFunction.MENU;
+    }
+
+    @Override
+    public Response process(Message message) {
+        return new Response(BotApiMethodFactory.inlineKeyboardMessage(message.getChatId(), "Выберите функцию", createMenuKeyboard()));
+    }
+
+    @Override
+    public Response process(CallbackQuery query) {
+        Message message = query.getMessage();
+        return new Response(BotApiMethodFactory.messageEdit(message.getChatId(), message.getMessageId(), "Выберите функцию", createMenuKeyboard()));
+    }
+
+    private static InlineKeyboardMarkup createMenuKeyboard() {
+        return InlineKeyboardBuilder.createKeyboardOf(
+                rowOf(button("TODO Гадание", "\uD83D\uDD2E", "divination")),
+                rowOf(button("TODO Чакры", "☸", "chakras")),
+                rowOf(button("TODO Расчет аркан", "\uD83C\uDCCF", "arcanes")),
+                rowOf(button("Справочники", "\uD83D\uDCDA", "catalogue"))
+        );
+    }
+}

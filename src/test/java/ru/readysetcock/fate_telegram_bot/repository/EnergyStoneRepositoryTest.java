@@ -7,7 +7,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import ru.readysetcock.fate_telegram_bot.model.domain.ExampleEntity;
+import ru.readysetcock.fate_telegram_bot.model.domain.EnergyStone;
 
 import java.util.Optional;
 
@@ -15,20 +15,20 @@ import java.util.Optional;
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ContextConfiguration(classes = RepositoryTestConfig.class)
 @ActiveProfiles("test")
-public class ExampleRepositoryTest {
+class EnergyStoneRepositoryTest {
 
     @Autowired
-    private ExampleRepository repository;
+    private EnergyStoneRepository repository;
 
     @Test
-    public void saveExampleEntityTest() {
-        ExampleEntity entity = new ExampleEntity("rusName", "engName", "imagePath", "example");
+    void saveStoneEnergyTest() {
+        EnergyStone stoneEnergy = new EnergyStone("rusName", "engName", "imagePath", "", "");
 
-        Integer id = repository.save(entity).getId();
-        Optional<ExampleEntity> found = repository.findById(id);
+        Integer id = repository.save(stoneEnergy).getId();
+        Optional<EnergyStone> found = repository.findById(id);
 
         Assertions.assertTrue(repository.existsById(id));
         Assertions.assertTrue(found.isPresent());
-        Assertions.assertEquals(entity, found.get());
+        Assertions.assertEquals(stoneEnergy, found.get());
     }
 }

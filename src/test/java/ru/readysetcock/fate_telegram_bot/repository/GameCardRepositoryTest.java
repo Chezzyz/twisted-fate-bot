@@ -1,6 +1,5 @@
 package ru.readysetcock.fate_telegram_bot.repository;
 
-
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,7 +7,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import ru.readysetcock.fate_telegram_bot.model.domain.Rune;
+import ru.readysetcock.fate_telegram_bot.model.domain.GameCard;
 
 import java.util.Optional;
 
@@ -16,20 +15,20 @@ import java.util.Optional;
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ContextConfiguration(classes = RepositoryTestConfig.class)
 @ActiveProfiles("test")
-class RuneRepositoryTest {
+class GameCardRepositoryTest {
 
     @Autowired
-    private RunesRepository repository;
+    private GameCardRepository repository;
 
     @Test
-    void saveRuneEntityTest() {
-        Rune rune = new Rune("rusName", "engName", "imagePath", "symbol", "meaning", "description");
+    void saveGameCardTest() {
+        GameCard card = new GameCard("rusName", "engName", "imagePath", "example");
 
-        Integer id = repository.save(rune).getId();
-        Optional<Rune> found = repository.findById(id);
+        Integer id = repository.save(card).getId();
+        Optional<GameCard> found = repository.findById(id);
 
         Assertions.assertTrue(repository.existsById(id));
         Assertions.assertTrue(found.isPresent());
-        Assertions.assertEquals(rune, found.get());
+        Assertions.assertEquals(card, found.get());
     }
 }
