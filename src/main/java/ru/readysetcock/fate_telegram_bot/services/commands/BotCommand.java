@@ -16,7 +16,10 @@ public enum BotCommand {
     CHAKRAS("/chakras"),
     ARCANES("/arcanes"),
     CATALOGUE("/catalogue"),
+    STONES("/stones"),
     ZODIACS("/zodiacs");
+
+
 
 
     @Getter

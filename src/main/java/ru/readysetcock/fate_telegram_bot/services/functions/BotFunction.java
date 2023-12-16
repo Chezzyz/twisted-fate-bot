@@ -13,7 +13,10 @@ public enum BotFunction {
     CHAKRAS("chakras"),
     ARCANES("arcanes"),
     CATALOGUE("catalogue"),
+    STONES("stones"),
+    ZODIAC("zodiac"),
     TAROS("taros");
+
 
     @Getter
     private final String functionName;

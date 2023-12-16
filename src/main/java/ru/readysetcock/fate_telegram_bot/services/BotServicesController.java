@@ -36,12 +36,13 @@ public class BotServicesController {
             return processWithCommand(update.getMessage());
         } else if (update.hasCallbackQuery()) {
             return processWithCallbackQuery(update.getCallbackQuery());
+
         } else if (update.hasMessage()) {
             log.info("Получил хуй пойми че");
             return createDefaultMessage(update.getMessage().getChatId());
         } else {
             log.warn("Пришло сообщение без message и callback - {}", update);
-            return new Response(null);
+            return new Response();
         }
     }
 
