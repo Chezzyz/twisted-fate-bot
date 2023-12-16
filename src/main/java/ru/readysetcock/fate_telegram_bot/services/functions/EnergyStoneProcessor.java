@@ -7,11 +7,12 @@ import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+import ru.readysetcock.fate_telegram_bot.formatters.FeaturesFormatter;
 import ru.readysetcock.fate_telegram_bot.messages.BotApiMethodFactory;
 import ru.readysetcock.fate_telegram_bot.messages.InlineKeyboardBuilder;
 import ru.readysetcock.fate_telegram_bot.messages.Response;
-import ru.readysetcock.fate_telegram_bot.model.domain.EnergyStone; // Assuming EnergyStone is the correct class
-import ru.readysetcock.fate_telegram_bot.repository.EnergyStoneRepository; // Assuming EnergyStoneRepository is the correct repository
+import ru.readysetcock.fate_telegram_bot.model.domain.EnergyStone;
+import ru.readysetcock.fate_telegram_bot.repository.EnergyStoneRepository;
 import ru.readysetcock.fate_telegram_bot.services.commands.BotCommand;
 import ru.readysetcock.fate_telegram_bot.services.commands.BotCommandProcessor;
 
@@ -86,13 +87,19 @@ public class EnergyStoneProcessor implements BotFunctionProcessor, BotCommandPro
                 .build();
     }
 
+    private Response deleteStone(CallbackQuery query) {
+        Message message = query.getMessage();
+        return new Response(BotApiMethodFactory.deleteMessage(message.getChatId(), message.getMessageId()));
+    }
+
     private EnergyStone getEnergyStoneById(int id) {
         return energyStoneRepository.findById(id).orElse(null);
     }
 
     private InlineKeyboardMarkup getAllEnergyStonesKeyboard() {
         List<InlineKeyboardButton> buttons = new ArrayList<>();
-        energyStoneRepository.findAll().forEach(stone -> buttons.add(button(stone.getRusName(), BotFunction.STONES.getFunctionName() + "/id/" + stone.getId())));
+        energyStoneRepository.findAll().forEach(stone -> buttons.add(button(stone.getRusName(),
+                BotFunction.STONES.getFunctionName() + "/id/" + stone.getId())));
         buttons.add(button("⬅ Назад", BotFunction.CATALOGUE.getFunctionName()));
         return InlineKeyboardBuilder.createKeyboardOf(buttons);
     }
@@ -100,20 +107,18 @@ public class EnergyStoneProcessor implements BotFunctionProcessor, BotCommandPro
     private String createEnergyStoneInfoString(EnergyStone energyStone) {
         return """
                 <b>Название</b>: %s (%s)
-                <b>Свойства</b>: %s
+
+                <b>Свойства</b>:
+                %s
                 <b>Описание</b>: %s
-                 %s""".formatted(
+
+                %s""".formatted(
                 energyStone.getRusName(),
                 energyStone.getEngName(),
-                energyStone.getFeatures(),
+                FeaturesFormatter.formatPrettyFeatures(energyStone.getFeatures().split(", ")),
                 energyStone.getRealDescription(),
                 energyStone.getEsotericDescription()
         );
-    }
-
-    private Response deleteStone(CallbackQuery query) {
-        Message message = query.getMessage();
-        return new Response(BotApiMethodFactory.deleteMessage(message.getChatId(), message.getMessageId()));
     }
 }
 

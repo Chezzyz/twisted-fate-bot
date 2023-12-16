@@ -7,6 +7,7 @@ import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+import ru.readysetcock.fate_telegram_bot.formatters.FeaturesFormatter;
 import ru.readysetcock.fate_telegram_bot.messages.BotApiMethodFactory;
 import ru.readysetcock.fate_telegram_bot.messages.InlineKeyboardBuilder;
 import ru.readysetcock.fate_telegram_bot.messages.Response;
@@ -24,7 +25,7 @@ import static ru.readysetcock.fate_telegram_bot.messages.InlineKeyboardBuilder.r
 
 @Service
 @RequiredArgsConstructor
-public class ZodiacProcessor implements BotFunctionProcessor, BotCommandProcessor {
+public class ZodiacSignProcessor implements BotFunctionProcessor, BotCommandProcessor {
 
     private final ZodiacSignRepository zodiacSignRepository;
 
@@ -72,26 +73,31 @@ public class ZodiacProcessor implements BotFunctionProcessor, BotCommandProcesso
         if (zodiacSign == null) {
             return new Response(BotApiMethodFactory.callbackQueryAnswer(query.getId()));
         }
-        return deleteOnlySignResponse(zodiacSign,query);
+        return deleteOnlySignResponse(zodiacSign, query);
     }
 
-        private Response deleteOnlySignResponse(ZodiacSign zodiacSign, CallbackQuery query) {
-            SendPhoto sendPhoto = BotApiMethodFactory.messageWithPhoto(query.getMessage().getChatId(), zodiacSign.getImageFileId(),
-                    createZodiacInfoString(zodiacSign),
-                    InlineKeyboardBuilder.createKeyboardOf(rowOf(button("⬅ Назад", "%s/delete".formatted(BotFunction.ZODIAC.getFunctionName())))));
+    private Response deleteSign(CallbackQuery query) {
+        Message message = query.getMessage();
+        return new Response(BotApiMethodFactory.deleteMessage(message.getChatId(), message.getMessageId()));
+    }
 
-            return Response.builder()
-                    .photo(sendPhoto)
-                    .methods(Collections.singletonList(BotApiMethodFactory.callbackQueryAnswer(query.getId())))
-                    .build();
-        }
+    private Response deleteOnlySignResponse(ZodiacSign zodiacSign, CallbackQuery query) {
+        SendPhoto sendPhoto = BotApiMethodFactory.messageWithPhoto(query.getMessage().getChatId(), zodiacSign.getImageFileId(),
+                createZodiacInfoString(zodiacSign),
+                InlineKeyboardBuilder.createKeyboardOf(rowOf(button("⬅ Назад", "%s/delete".formatted(BotFunction.ZODIAC.getFunctionName())))));
+
+        return Response.builder()
+                .photo(sendPhoto)
+                .methods(Collections.singletonList(BotApiMethodFactory.callbackQueryAnswer(query.getId())))
+                .build();
+    }
 
     private InlineKeyboardMarkup getAllZodiacSignsKeyboard() {
         List<InlineKeyboardButton> buttons = new ArrayList<>();
-        zodiacSignRepository.findAll().forEach(sign -> buttons.add(button(sign.getRusName(), BotFunction.ZODIAC.getFunctionName() + "/id/" + sign.getId())));
+        zodiacSignRepository.findAll().forEach(sign -> buttons.add(button(sign.getRusName(), sign.getSymbol(),
+                BotFunction.ZODIAC.getFunctionName() + "/id/" + sign.getId())));
         buttons.add(button("⬅ Назад", BotFunction.CATALOGUE.getFunctionName()));
         return InlineKeyboardBuilder.createKeyboardOf(buttons);
-
     }
 
     private ZodiacSign getZodiacSignById(int id) {
@@ -100,17 +106,17 @@ public class ZodiacProcessor implements BotFunctionProcessor, BotCommandProcesso
 
     private String createZodiacInfoString(ZodiacSign zodiacSign) {
         return """
-                <b>Название</b>: %s (%s) %s,
+                <b>Название</b>: %s (%s) %s
+
+                <b>Характеристики</b>:
+                %s
                 <b>Описание</b>: %s""".formatted(
                 zodiacSign.getRusName(),
                 zodiacSign.getEngName(),
                 zodiacSign.getSymbol(),
+                FeaturesFormatter.formatPrettyFeatures(zodiacSign.getFeatures().split(", ")),
                 zodiacSign.getDescription()
         );
-    }
-    private Response deleteSign(CallbackQuery query) {
-        Message message = query.getMessage();
-        return new Response(BotApiMethodFactory.deleteMessage(message.getChatId(), message.getMessageId()));
     }
 }
 

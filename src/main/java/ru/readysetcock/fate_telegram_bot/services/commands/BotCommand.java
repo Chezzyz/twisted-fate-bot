@@ -19,9 +19,6 @@ public enum BotCommand {
     STONES("/stones"),
     ZODIACS("/zodiacs");
 
-
-
-
     @Getter
     private final String commandText;
 }

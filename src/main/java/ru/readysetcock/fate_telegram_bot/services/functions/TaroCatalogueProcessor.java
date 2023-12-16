@@ -7,6 +7,7 @@ import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+import ru.readysetcock.fate_telegram_bot.formatters.FeaturesFormatter;
 import ru.readysetcock.fate_telegram_bot.messages.BotApiMethodFactory;
 import ru.readysetcock.fate_telegram_bot.messages.InlineKeyboardBuilder;
 import ru.readysetcock.fate_telegram_bot.messages.Response;
@@ -15,9 +16,9 @@ import ru.readysetcock.fate_telegram_bot.repository.TaroCardRepository;
 import ru.readysetcock.fate_telegram_bot.services.commands.BotCommand;
 import ru.readysetcock.fate_telegram_bot.services.commands.BotCommandProcessor;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static ru.readysetcock.fate_telegram_bot.messages.InlineKeyboardBuilder.button;
 import static ru.readysetcock.fate_telegram_bot.messages.InlineKeyboardBuilder.rowOf;
@@ -96,28 +97,20 @@ public class TaroCatalogueProcessor implements BotFunctionProcessor, BotCommandP
     }
 
     private InlineKeyboardMarkup getAllCardsKeyboard() {
-        List<TaroCard> taroCardList = new ArrayList<>();
         List<InlineKeyboardButton> buttons = new ArrayList<>();
-        repository.findAll().forEach(taroCardList::add);
-        for (int i = 0; i < taroCardList.size(); i++) {
-            buttons.add(button(taroCardList.get(i).getRusName(), taroCardList.get(i).getSymbol(), BotFunction.TAROS.getFunctionName() + "/id/" + (i + 1)));
-        }
+        repository.findAll().forEach(taroCard -> buttons.add(button(taroCard.getRusName(), taroCard.getSymbol(),
+                BotFunction.TAROS.getFunctionName() + "/id/" + taroCard.getId())));
         buttons.add(button("⬅ Назад", BotFunction.CATALOGUE.getFunctionName()));
         return InlineKeyboardBuilder.createKeyboardOf(buttons);
-    }
-
-    private String getPrettyFeaturesById(TaroCard card) {
-        return Arrays.stream(
-                card.getFeatures().split(", ")).map("⭐️ %s%n"::formatted).collect(Collectors.joining());
     }
 
     private String createTaroDescriptionMessage(TaroCard taroCard) {
         return """
                 <b>Название</b>: %s (%s) %s
-                        
-                <b>Описание</b>: %s
-                        
+
                 <b>Характеристики</b>:
-                %s""".formatted(taroCard.getRusName(), taroCard.getEngName(), taroCard.getSymbol(), taroCard.getDescription(), getPrettyFeaturesById(taroCard));
+                %s
+                <b>Описание</b>: %s""".formatted(taroCard.getRusName(), taroCard.getEngName(), taroCard.getSymbol(),
+                FeaturesFormatter.formatPrettyFeatures(taroCard.getFeatures().split(", ")), taroCard.getDescription());
     }
 }

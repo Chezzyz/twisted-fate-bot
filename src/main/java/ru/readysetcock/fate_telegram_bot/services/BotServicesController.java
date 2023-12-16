@@ -36,7 +36,6 @@ public class BotServicesController {
             return processWithCommand(update.getMessage());
         } else if (update.hasCallbackQuery()) {
             return processWithCallbackQuery(update.getCallbackQuery());
-
         } else if (update.hasMessage()) {
             log.info("Получил хуй пойми че");
             return createDefaultMessage(update.getMessage().getChatId());
@@ -67,7 +66,7 @@ public class BotServicesController {
             return processor.process(query);
         } else {
             log.warn("Получил callback неизвестной функции '{}'", data);
-            return createEmptyCallbackQueryAnswer(query.getId());
+            return createNotImplementedCallbackQueryAnswer(query.getId());
         }
     }
 
@@ -75,8 +74,8 @@ public class BotServicesController {
         return new Response(BotApiMethodFactory.textMessage(chatId, "Такая команда мне неизвестна \uD83E\uDD28"));
     }
 
-    private Response createEmptyCallbackQueryAnswer(String queryId) {
-        return new Response(BotApiMethodFactory.callbackQueryAnswer(queryId));
+    private Response createNotImplementedCallbackQueryAnswer(String queryId) {
+        return new Response(BotApiMethodFactory.callbackQueryAnswer(queryId, "Эта функция еще в разработке", false));
     }
 
     private Response createDefaultMessage(Long chatId) {
