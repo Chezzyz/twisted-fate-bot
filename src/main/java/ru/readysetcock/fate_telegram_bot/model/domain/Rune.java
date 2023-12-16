@@ -14,16 +14,17 @@ public class Rune extends BaseCatalogueDomain {
     @Column(name = "symbol", nullable = false)
     private String symbol;
 
-    @Column(name = "translation", nullable = false)
-    private String translation;
+    @Column(name = "translation_text", nullable = false)
+    private String translationText;
 
     @Column(name = "description", nullable = false)
     private String description;
 
-    public Rune(String rusName, String engName, String imageFileId, String symbol, String translation, String description) {
+    public Rune(String rusName, String engName, String imageFileId, String symbol, String translationText, String description) {
         super(rusName, engName, imageFileId);
         this.symbol = symbol;
-        this.translation = translation;
+        this.translationText = translationText;
         this.description = description;
     }
 }
+
