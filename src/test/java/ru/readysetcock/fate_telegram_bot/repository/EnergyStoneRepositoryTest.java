@@ -22,7 +22,7 @@ class EnergyStoneRepositoryTest {
 
     @Test
     void saveStoneEnergyTest() {
-        EnergyStone stoneEnergy = new EnergyStone("rusName", "engName", "imagePath", "", "");
+        EnergyStone stoneEnergy = new EnergyStone("rusName", "engName","features","imageFileId", "real", "esotericDescription");
 
         Integer id = repository.save(stoneEnergy).getId();
         Optional<EnergyStone> found = repository.findById(id);

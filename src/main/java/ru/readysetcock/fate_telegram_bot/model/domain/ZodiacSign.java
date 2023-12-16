@@ -23,14 +23,18 @@ public class ZodiacSign extends BaseCatalogueDomain {
     @Column(name = "symbol", nullable = false)
     private String symbol;
 
-    @Column(name = "description")
+    @Column(name = "description", nullable = false)
     private String description;
 
-    public ZodiacSign(String rusName, String engName, String imageFileId, LocalDate startDate, LocalDate endDate, String symbol, String description) {
+    @Column(name = "features", nullable = false)
+    private String features;
+
+    public ZodiacSign(String rusName, String engName, String imageFileId, LocalDate startDate, LocalDate endDate, String symbol, String description, String features) {
         super(rusName, engName, imageFileId);
         this.startDate = DateFormatter.format(startDate, DateFormatter.MONTH_DAY_FORMATTER);
         this.endDate = DateFormatter.format(endDate, DateFormatter.MONTH_DAY_FORMATTER);
         this.symbol = symbol;
         this.description = description;
+        this.features = features;
     }
 }

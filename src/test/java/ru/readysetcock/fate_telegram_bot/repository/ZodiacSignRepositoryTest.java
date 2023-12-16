@@ -24,7 +24,7 @@ class ZodiacSignRepositoryTest {
     void saveZodiacSignTest() {
         LocalDate startDate = LocalDate.of(2000, 1, 1);
         LocalDate endDate = LocalDate.of(2000, 12, 31);
-        ZodiacSign zodiacSign = new ZodiacSign("rusName", "engName", "imagePath", startDate, endDate, "Symbol", "Description");
+        ZodiacSign zodiacSign = new ZodiacSign("rusName", "engName", "imagePath", startDate, endDate, "Symbol", "Description", "Features");
 
         Integer id = repository.save(zodiacSign).getId();
         Optional<ZodiacSign> found = repository.findById(id);
