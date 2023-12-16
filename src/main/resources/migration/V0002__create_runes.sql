@@ -11,7 +11,7 @@ CREATE TABLE runes
     PRIMARY KEY (id),
     UNIQUE (id)
 );
-INSERT INTO runes(rus_name, eng_name,image_file_id,symbol,translation_text,description)
+INSERT INTO runes(rus_name, eng_name, image_file_id, symbol, translation_text, description)
 VALUES
 ('Феху','Fehu','AgACAgQAAxkBAAIDrGV8KD83M80GPvHODaZD01xpnT7kAAJOwDEbMBnhU-eeJbXH57GYAQADAgADcwADMwQ','ᚠ','Скот','Феху — руна, полная удовлетворения, удачи и богатства. Это может быть удовлетворение амбиций, удовлетворение в любви или даже желаемое повышение зарплаты.Как знак надежды и изобилия, эта руна указывает на физические преимущества, которыми вы можете быть вознаграждены после тяжелой работы и решимости.'),
 ('Уруз','Uruz','AgACAgQAAxkBAAIDymV8KVTNutwXAzjaxL0gc8Ioe_TSAAJdwDEbMBnhUzbm5SSu39VMAQADAgADcwADMwQ','ᚢ','Сила','Руна Уруз символизирует физическую, духовную и эмоциональную силу, мощь, необузданный потенциал и плодородие. Эта руна также означает преодоление личных проблем в вашей жизни.Это может указывать на то, что ваша жизненная сила переросла ваш нынешний жизненный путь и грядут сложные перемены. Примите свое перерождение в жизни и внимательно следите за скрытыми возможностями.'),

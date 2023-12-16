@@ -14,6 +14,8 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.readysetcock.fate_telegram_bot.messages.BotApiMethodFactory;
 import ru.readysetcock.fate_telegram_bot.messages.Response;
+import ru.readysetcock.fate_telegram_bot.model.domain.Rune;
+import ru.readysetcock.fate_telegram_bot.repository.RunesRepository;
 import ru.readysetcock.fate_telegram_bot.services.BotServicesController;
 
 import java.io.Serializable;
@@ -36,8 +38,7 @@ public class TelegramController extends TelegramLongPollingBot {
     public void onUpdateReceived(Update update) {
         MDC.put(SESSION_ID_TAG, getSid(update));
 
-        //sendAll(botServicesController.getResponse(update));
-        sendMessage(BotApiMethodFactory.textMessage(update.getMessage().getChatId(), update.getMessage().getPhoto().get(0).getFileId()));
+        sendAll(botServicesController.getResponse(update));
 
         MDC.remove(SESSION_ID_TAG);
     }
