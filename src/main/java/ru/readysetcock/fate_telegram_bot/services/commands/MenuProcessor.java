@@ -36,10 +36,10 @@ public class MenuProcessor implements BotCommandProcessor, BotFunctionProcessor 
         return new Response(BotApiMethodFactory.messageEdit(message.getChatId(), message.getMessageId(), "Выберите функцию", createMenuKeyboard()));
     }
 
-    private static InlineKeyboardMarkup createMenuKeyboard() {
+    private InlineKeyboardMarkup createMenuKeyboard() {
         return InlineKeyboardBuilder.createKeyboardOf(
                 rowOf(button("\uD83D\uDD12 Гадание", "\uD83D\uDD2E", "divination")),
-                rowOf(button("\uD83D\uDD12 Чакры", "☸", "chakras")),
+                rowOf(button("\uD83D\uDD12 Чакроанализ", "☸", "chakras")),
                 rowOf(button("\uD83D\uDD12 Расчет аркан", "\uD83C\uDCCF", "arcanes")),
                 rowOf(button("Справочники", "\uD83D\uDCDA", "catalogue"))
         );

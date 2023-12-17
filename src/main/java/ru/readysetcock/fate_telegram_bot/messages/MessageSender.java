@@ -31,7 +31,7 @@ public class MessageSender {
     private static void sendMethod(BotApiMethod<? extends Serializable> method, AbsSender sender) {
         try {
             log.info("Отправляю метод {}", method.getClass().getSimpleName());
-            sender.execute(method);
+            sender.executeAsync(method);
         } catch (TelegramApiException e) {
             log.error(EXECUTE_ERROR_MESSAGE, e);
         }
@@ -40,8 +40,8 @@ public class MessageSender {
     private static void sendPhoto(SendPhoto method, AbsSender sender) {
         try {
             log.info("Отправляю метод SendPhoto");
-            sender.execute(method);
-        } catch (TelegramApiException e) {
+            sender.executeAsync(method);
+        } catch (Exception e) {
             log.error(EXECUTE_ERROR_MESSAGE, e);
         }
     }
@@ -49,8 +49,8 @@ public class MessageSender {
     private static void sendPhotoGroup(SendMediaGroup method, AbsSender sender) {
         try {
             log.info("Отправляю метод SendMediaGroup");
-            sender.execute(method);
-        } catch (TelegramApiException e) {
+            sender.executeAsync(method);
+        } catch (Exception e) {
             log.error(EXECUTE_ERROR_MESSAGE, e);
         }
     }

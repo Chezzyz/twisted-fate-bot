@@ -30,6 +30,11 @@ public class TelegramController extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
+        Thread worker = new Thread(() -> workerRun(update));
+        worker.start();
+    }
+
+    private void workerRun(Update update){
         MDC.put(SessionIdFormatter.SESSION_ID_TAG, SessionIdFormatter.formatSid(update));
 
         MessageSender.sendResponse(botServicesController.getResponse(update), this);
