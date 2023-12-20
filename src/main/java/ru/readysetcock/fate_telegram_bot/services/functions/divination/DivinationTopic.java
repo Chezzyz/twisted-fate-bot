@@ -21,6 +21,6 @@ public enum DivinationTopic {
 
     @Override
     public String toString() {
-        return getFunctionName();
+        return functionName;
     }
 }
