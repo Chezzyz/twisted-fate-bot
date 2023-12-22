@@ -15,7 +15,8 @@ public enum BotFunction {
     CATALOGUE("catalogue"),
     STONES("stones"),
     ZODIAC("zodiacs"),
-    TAROS("taros");
+    TAROS("taros"),
+    TAROLAYOUTS("taro_layouts");
 
     @Getter
     private final String functionName;

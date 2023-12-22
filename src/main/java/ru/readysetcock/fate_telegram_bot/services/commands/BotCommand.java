@@ -12,6 +12,7 @@ public enum BotCommand {
     START("/start"),
     HELP("/help"),
     TAROS("/taros"),
+    TAROLAYOUTS("/taro_layouts"),
     DIVINATION("/divination"),
     CHAKRAS("/chakras"),
     ARCANES("/arcanes"),
