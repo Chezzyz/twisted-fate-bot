@@ -5,28 +5,28 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 import java.util.Arrays;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class LayoutFormatter {
-    private static final String[] EMOJIS = {
-            "1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣",
-            "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟"
-    };
-    public static String formatLayoutPositions(@NotNull String[] positions){
-        return Arrays.stream(positions)
-                .map(LayoutFormatter::mapPosition)
-                .collect(Collectors.joining("\n")) + "\n";
-    }
+    private static final Map<String, String> EMOJI_MAP = Map.ofEntries(
+            Map.entry("S", "🆂"),
+            Map.entry("1", "1️⃣"),
+            Map.entry("2", "2️⃣"),
+            Map.entry("3", "3️⃣"),
+            Map.entry("4", "4️⃣"),
+            Map.entry("5", "5️⃣"),
+            Map.entry("6", "6️⃣"),
+            Map.entry("7", "7️⃣"),
+            Map.entry("8", "8️⃣"),
+            Map.entry("9", "9️⃣"),
+            Map.entry("10", "🔟")
+    );
 
-    private static String mapPosition(String position) {
-        int index = position.indexOf('.');
-        if (index != -1) {
-            int digit = Integer.parseInt(position.substring(0, index));
-            if (digit >= 1 && digit <= EMOJIS.length) {
-                return EMOJIS[digit - 1] + position.substring(index + 1);
-            }
-        }
-        return position;
+    public static String formatLayoutPositions(@NotNull String[] positions) {
+        return Arrays.stream(positions)
+                .map(pos -> EMOJI_MAP.get(pos.split("\\.")[0]) + pos.split("\\.")[1])
+                .collect(Collectors.joining("\n")) + "\n";
     }
 }
