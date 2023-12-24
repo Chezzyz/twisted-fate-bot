@@ -26,7 +26,7 @@ public class HelpProcessor implements BotCommandProcessor {
                 - Расчет аркан: /arcanes
                 - Чакроанализ : /chakras
                 - Совместимость по знакам зодиака: /compatibility
-                - Различные справочники: /taros, /zodiacs, /runes, /stones
+                - Различные справочники: /taros, /zodiacs, /runes, /stones, /taro_layouts
                 """;
         return BotApiMethodFactory.textMessage(message.getChatId(), formattedMessage);
     }
