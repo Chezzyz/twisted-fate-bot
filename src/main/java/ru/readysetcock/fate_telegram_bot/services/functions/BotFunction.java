@@ -9,7 +9,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum BotFunction {
     MENU("menu"),
-    DIVINATION("divination"),
+    DIVINATION("div"),
     CHAKRAS("chakras"),
     ARCANES("arcanes"),
     CATALOGUE("catalogue"),
@@ -19,4 +19,9 @@ public enum BotFunction {
 
     @Getter
     private final String functionName;
+
+    @Override
+    public String toString() {
+        return functionName;
+    }
 }
