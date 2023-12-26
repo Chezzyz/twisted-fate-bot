@@ -2,6 +2,7 @@ package ru.readysetcock.fate_telegram_bot.messages;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.objects.media.InputMediaPhoto;
 
 import java.util.List;
@@ -17,6 +18,7 @@ public class PhotoGroupBuilder {
         return InputMediaPhoto.builder()
                 .caption(caption)
                 .media(fileId)
+                .parseMode(ParseMode.HTML)
                 .isNewMedia(false)
                 .hasSpoiler(spoiler)
                 .build();

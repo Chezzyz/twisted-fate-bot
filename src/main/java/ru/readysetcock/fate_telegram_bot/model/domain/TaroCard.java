@@ -23,11 +23,15 @@ public class TaroCard extends BaseCatalogueDomain {
     @Column(name = "symbol")
     private String symbol;
 
-    public TaroCard(String rusName, String engName, String imageFileId, Integer cardNumber, String description, String features, String symbol) {
+    @Column(name = "is_major")
+    private boolean isMajor;
+
+    public TaroCard(String rusName, String engName, String imageFileId, Integer cardNumber, String description, String features, String symbol, boolean isMajor) {
         super(rusName, engName, imageFileId);
         this.cardNumber = cardNumber;
         this.description = description;
         this.features = features;
         this.symbol = symbol;
+        this.isMajor = isMajor;
     }
 }
