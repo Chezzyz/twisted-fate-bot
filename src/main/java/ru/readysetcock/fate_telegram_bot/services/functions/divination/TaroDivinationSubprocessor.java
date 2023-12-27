@@ -175,7 +175,11 @@ public class TaroDivinationSubprocessor implements DivinationSubprocessor {
                                     taroLayout.getSymbol(), "%s/id/%s".formatted(data, taroLayout.getId()))));
         }
         buttons.add(button("Назад", "%s/%s".formatted(BotFunction.DIVINATION, DivinationType.TARO)));
-        return new Response(BotApiMethodFactory.messageEdit(message.getChatId(), message.getMessageId(), "Выберите расклад (для подробной информации о раскладах напишите /taro_layouts )",
+        return new Response(BotApiMethodFactory.messageEdit(message.getChatId(), message.getMessageId(),
+                """
+                        \uD83E\uDD14<b>Перед тем как выбрать расклад, задайте вопрос у себя в голове</b>\uD83E\uDD14
+                        
+                        Выберите расклад (для подробной информации о раскладах нажмите /taro_layouts )""",
                 InlineKeyboardBuilder.createKeyboardOf(buttons)));
     }
 

@@ -116,6 +116,7 @@ public class BotApiMethodFactory {
         return EditMessageText.builder()
                 .chatId(chatId)
                 .messageId(messageId)
+                .parseMode(ParseMode.HTML)
                 .text(editedText)
                 .replyMarkup(editedMarkup)
                 .build();
