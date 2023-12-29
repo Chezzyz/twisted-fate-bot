@@ -22,6 +22,7 @@ public class CatalogueProcessor implements BotFunctionProcessor {
     public Response process(CallbackQuery query) {
         InlineKeyboardMarkup keyboard = InlineKeyboardBuilder.createKeyboardOf(
                 rowOf(button("Карты таро", "\uD83C\uDCCF", "taros")),
+                rowOf(button("Расклады карт таро", "\uD83C\uDCCF", "taro_layouts")),
                 rowOf(button("Знаки зодиака", "⭐", "zodiacs")),
                 rowOf(button("\uD83D\uDD12 Руны", "\uD83C\uDC04", "runes")),
                 rowOf(button("Драгоценные камни", "\uD83D\uDC8E", "stones")),

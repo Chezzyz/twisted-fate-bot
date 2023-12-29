@@ -12,7 +12,8 @@ public enum BotCommand {
     START("/start"),
     HELP("/help"),
     TAROS("/taros"),
-    DIVINATION("/divination"),
+    DIVINATION("/div"),
+    TAROLAYOUTS("/taro_layouts"),
     CHAKRAS("/chakras"),
     ARCANES("/arcanes"),
     CATALOGUE("/catalogue"),
@@ -21,4 +22,9 @@ public enum BotCommand {
 
     @Getter
     private final String commandText;
+
+    @Override
+    public String toString() {
+        return commandText;
+    }
 }
