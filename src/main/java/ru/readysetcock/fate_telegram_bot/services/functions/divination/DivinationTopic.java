@@ -18,7 +18,8 @@ public enum DivinationTopic {
     DECISION("decision", "Принятие решений", "🤔"),
     GROWTH("growth", "Личностное развитие", "📈"),
     INSIGNIFICANT("ins", "Не имеет значения", "⬜️"),
-    DONTWANNATELL("dwt", "Не хочу указывать", "🙊");
+    DONTWANNATELL("dwt", "Не хочу указывать", "🙊"),
+    YESNO("yesno", "Вопросы Да/Нет", "👍👎");
 
     private static final Map<String, DivinationTopic> FUNCTION_NAME_MAP = new HashMap<>();
 

@@ -153,6 +153,7 @@ public class TaroDivinationSubprocessor implements DivinationSubprocessor {
                         rowOf(button(DivinationTopic.HEALTH.getRusName(), DivinationTopic.HEALTH.getEmoji(), "%s/t/%s".formatted(data, DivinationTopic.HEALTH))),
                         rowOf(button(DivinationTopic.DECISION.getRusName(), DivinationTopic.DECISION.getEmoji(), "%s/t/%s".formatted(data, DivinationTopic.DECISION))),
                         rowOf(button(DivinationTopic.GROWTH.getRusName(), DivinationTopic.GROWTH.getEmoji(), "%s/t/%s".formatted(data, DivinationTopic.GROWTH))),
+                        rowOf(button(DivinationTopic.YESNO.getRusName(), DivinationTopic.YESNO.getEmoji(), "%s/t/%s".formatted(data, DivinationTopic.YESNO))),
                         rowOf(button(DivinationTopic.INSIGNIFICANT.getRusName(), DivinationTopic.INSIGNIFICANT.getEmoji(), "%s/t/%s".formatted(data, DivinationTopic.INSIGNIFICANT))),
                         rowOf(button(DivinationTopic.DONTWANNATELL.getRusName(), DivinationTopic.DONTWANNATELL.getEmoji(), "%s/t/%s".formatted(data, DivinationTopic.DONTWANNATELL))),
                         rowOf(button("⬅ Назад", data.replace("/%s".formatted(data.split("/")[DECK_ORDER_NUM - 1]), ""))))));
@@ -163,11 +164,13 @@ public class TaroDivinationSubprocessor implements DivinationSubprocessor {
         String data = query.getData();
         List<InlineKeyboardButton> buttons = new ArrayList<>();
         String topic = data.split("/")[TOPIC_ORDER_NUM];
-        if (data.contains("/dwt")) {
+        if (data.contains(DivinationTopic.DONTWANNATELL.getFunctionName()) || data.contains(DivinationTopic.YESNO.getFunctionName())) {
             TaroLayout simpleLayout = taroLayoutRepository.findById(3).orElseThrow();
-            TaroLayout linearLayout = taroLayoutRepository.findById(4).orElseThrow();
             buttons.add(button(simpleLayout.getRusName(), simpleLayout.getSymbol(), "%s/id/%s".formatted(data, simpleLayout.getId())));
-            buttons.add(button(linearLayout.getRusName(), linearLayout.getSymbol(), "%s/id/%s".formatted(data, linearLayout.getId())));
+            if (data.contains(DivinationTopic.DONTWANNATELL.getFunctionName())) {
+                TaroLayout linearLayout = taroLayoutRepository.findById(4).orElseThrow();
+                buttons.add(button(linearLayout.getRusName(), linearLayout.getSymbol(), "%s/id/%s".formatted(data, linearLayout.getId())));
+            }
         } else {
             taroLayoutRepository.findTaroLayoutsByTopicContainsOrTopicEquals(topic, "general")
                     .forEach(taroLayout ->
@@ -178,7 +181,7 @@ public class TaroDivinationSubprocessor implements DivinationSubprocessor {
         return new Response(BotApiMethodFactory.messageEdit(message.getChatId(), message.getMessageId(),
                 """
                         \uD83E\uDD14<b>Перед тем как выбрать расклад, задайте вопрос у себя в голове</b>\uD83E\uDD14
-                        
+                                                
                         Выберите расклад (для подробной информации о раскладах нажмите /taro_layouts )""",
                 InlineKeyboardBuilder.createKeyboardOf(buttons)));
     }

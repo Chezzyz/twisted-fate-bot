@@ -33,13 +33,21 @@ public class TaroCardMeaning {
     @Column(name = "spirit")
     private String spirit;
 
-    public TaroCardMeaning(Integer cardId, String love, String job, String health, String growth, String spirit) {
+    @Column(name = "yes_no")
+    private String yesNo;
+
+    @Column(name = "card_of_the_day")
+    private String cardOfTheDay;
+
+    public TaroCardMeaning(Integer cardId, String love, String job, String health, String growth, String spirit, String yesNo, String cardOfTheDay) {
         this.cardId = cardId;
         this.love = love;
         this.job = job;
         this.health = health;
         this.growth = growth;
         this.spirit = spirit;
+        this.yesNo = yesNo;
+        this.cardOfTheDay = cardOfTheDay;
     }
 
     @Transient
@@ -48,7 +56,8 @@ public class TaroCardMeaning {
             Map.entry(DivinationTopic.JOB.toString(), this::getJob),
             Map.entry(DivinationTopic.HEALTH.toString(), this::getHealth),
             Map.entry(DivinationTopic.GROWTH.toString(), this::getGrowth),
-            Map.entry(DivinationTopic.SPIRIT.toString(), this::getSpirit)
+            Map.entry(DivinationTopic.SPIRIT.toString(), this::getSpirit),
+            Map.entry(DivinationTopic.YESNO.toString(), this::getYesNo)
     );
 
     public String getMeaningByTopic(String topicName) {
