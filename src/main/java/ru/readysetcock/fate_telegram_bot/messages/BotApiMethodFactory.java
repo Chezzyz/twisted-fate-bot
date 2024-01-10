@@ -32,6 +32,7 @@ public class BotApiMethodFactory {
     public static SendMessage textMessage(Long chatId, String text) {
         return SendMessage.builder()
                 .chatId(chatId.toString())
+                .parseMode(ParseMode.HTML)
                 .text(text)
                 .build();
     }
@@ -48,6 +49,7 @@ public class BotApiMethodFactory {
         return SendMessage.builder()
                 .chatId(chatId)
                 .text(text)
+                .parseMode(ParseMode.HTML)
                 .replyMarkup(markup)
                 .build();
     }
@@ -78,6 +80,9 @@ public class BotApiMethodFactory {
 
     public static SendPhoto messageWithPhoto(Long chatId, String fileId, String text) {
         return messageWithPhoto(chatId, fileId, text, false, null);
+    }
+    public static SendPhoto messageWithPhoto(Long chatId, String fileId, boolean spoiler) {
+        return messageWithPhoto(chatId, fileId, "", spoiler, null);
     }
 
     /**
@@ -111,6 +116,7 @@ public class BotApiMethodFactory {
         return EditMessageText.builder()
                 .chatId(chatId)
                 .messageId(messageId)
+                .parseMode(ParseMode.HTML)
                 .text(editedText)
                 .replyMarkup(editedMarkup)
                 .build();

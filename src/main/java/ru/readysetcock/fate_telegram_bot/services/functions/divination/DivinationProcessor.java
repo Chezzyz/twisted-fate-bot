@@ -77,10 +77,11 @@ public class DivinationProcessor implements BotFunctionProcessor, BotCommandProc
 
     private InlineKeyboardMarkup getDivTypesKeyboard() {
         return InlineKeyboardBuilder.createKeyboardOf(
-                rowOf(button("\uD83D\uDD12 Гадание на картах", "\uD83C\uDCCF", "%s/s".formatted(DIVINATION,DivinationType.CARDS))),
-                rowOf(button("\uD83D\uDD12 Гадание на рунах", "\uD83C\uDC04", "%s/s".formatted(DIVINATION,DivinationType.RUNES))),
-                rowOf(button("\uD83D\uDD12 Гадание на книгах", "\uD83D\uDCDA", "%s/s".formatted(DIVINATION,DivinationType.BOOKS))),
-                rowOf(button("\uD83D\uDD12 Гадание на небесных телах", "\uD83C\uDF0C", "%s/s".formatted(DIVINATION,DivinationType.CELESTIAL))),
+                rowOf(button("Карты таро", "\uD83D\uDD2E", "%s/%s".formatted(BotFunction.DIVINATION, DivinationType.TARO))),
+                rowOf(button("\uD83D\uDD12 Игральные карты", "\uD83C\uDCCF", "%s/%s".formatted(BotFunction.DIVINATION, DivinationType.GAMECARDS))),
+                rowOf(button("\uD83D\uDD12 Гадание на рунах", "\uD83C\uDC04", "%s/%s".formatted(DIVINATION, DivinationType.RUNES))),
+                rowOf(button("\uD83D\uDD12 Гадание на книгах", "\uD83D\uDCDA", "%s/%s".formatted(DIVINATION, DivinationType.BOOKS))),
+                rowOf(button("\uD83D\uDD12 Гадание на небесных телах", "\uD83C\uDF0C", "%s/%s".formatted(DIVINATION, DivinationType.CELESTIAL))),
                 rowOf(button("⬅ Назад", "menu")));
     }
 

@@ -5,7 +5,8 @@ import lombok.Getter;
 
 @AllArgsConstructor
 public enum DivinationType {
-    CARDS("cards"),
+    TARO("taro"),
+    GAMECARDS("game"),
     RUNES("runes"),
     BOOKS("books"),
     CELESTIAL("celestial");

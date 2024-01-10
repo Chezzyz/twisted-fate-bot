@@ -20,10 +20,18 @@ public class TaroLayout extends BaseCatalogueDomain{
     @Column(name = "symbol")
     private String symbol;
 
-    public TaroLayout(String rusName, String engName, String imageFileId, String schemeInfo, String description, String symbol) {
+    @Column(name = "topic")
+    private String topic;
+
+    @Column(name = "number_of_cards")
+    private int numberOfCards;
+
+    public TaroLayout(String rusName, String engName, String imageFileId, String schemeInfo, String description, String symbol, String topic, int numberOfCards) {
         super(rusName, engName, imageFileId);
         this.schemeInfo = schemeInfo;
         this.description = description;
         this.symbol = symbol;
+        this.topic = topic;
+        this.numberOfCards = numberOfCards;
     }
 }
