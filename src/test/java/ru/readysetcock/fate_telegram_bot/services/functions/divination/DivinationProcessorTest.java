@@ -1,6 +1,5 @@
 package ru.readysetcock.fate_telegram_bot.services.functions.divination;
 
-import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,7 +31,7 @@ class DivinationProcessorTest {
 
     @BeforeEach
     public void init(){
-        when(subprocessor.getDivinationType()).thenReturn(DivinationType.CARDS);
+        when(subprocessor.getDivinationType()).thenReturn(DivinationType.TARO);
         sut = new DivinationProcessor(List.of(subprocessor));
     }
 
@@ -52,7 +51,7 @@ class DivinationProcessorTest {
         assertNotNull(method.getReplyMarkup());
         assertInstanceOf(InlineKeyboardMarkup.class, method.getReplyMarkup());
         InlineKeyboardMarkup markup = (InlineKeyboardMarkup) method.getReplyMarkup();
-        assertEquals(5, markup.getKeyboard().stream().mapToInt(List::size).sum());
+        assertEquals(6, markup.getKeyboard().stream().mapToInt(List::size).sum());
     }
 
     @Test
@@ -74,13 +73,13 @@ class DivinationProcessorTest {
         assertTrue(!editMessageText.getText().isEmpty());
         assertNotNull(editMessageText.getReplyMarkup());
         assertInstanceOf(InlineKeyboardMarkup.class, editMessageText.getReplyMarkup());
-        assertEquals(5, editMessageText.getReplyMarkup().getKeyboard().stream().mapToInt(List::size).sum());
+        assertEquals(6, editMessageText.getReplyMarkup().getKeyboard().stream().mapToInt(List::size).sum());
     }
 
     @Test
     void testProcessCallbackQuerySubprocessorIf() {
         CallbackQuery query = new CallbackQuery();
-        query.setData(BotFunction.DIVINATION.toString().concat("/cards"));
+        query.setData(BotFunction.DIVINATION.toString().concat("/taro"));
         when(subprocessor.process(query)).thenReturn(new Response());
 
         Response response = sut.process(query);
