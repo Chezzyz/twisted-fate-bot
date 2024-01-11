@@ -29,4 +29,7 @@ public class LayoutFormatter {
                 .map(pos -> EMOJI_MAP.get(pos.split("\\.")[0]) + pos.split("\\.")[1])
                 .collect(Collectors.joining("\n")) + "\n";
     }
+    public static String getEmojiOfNumber(String key){
+        return EMOJI_MAP.get(key);
+    }
 }

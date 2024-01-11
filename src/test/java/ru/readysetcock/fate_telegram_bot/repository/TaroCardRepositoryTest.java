@@ -23,7 +23,7 @@ class TaroCardRepositoryTest {
     @Test
     void saveExampleEntityTest() {
         TaroCard taroCard = new TaroCard("Шут","The Fool","classpath:images/Fool.jpg",0,"description","features",
-                "symbol");
+                "symbol",true);
 
         Integer id = repository.save(taroCard).getId();
         Optional<TaroCard> found = repository.findById(id);

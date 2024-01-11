@@ -152,6 +152,6 @@ class TaroCatalogueProcessorTest {
     }
 
     private TaroCard createTaroCard() {
-        return new TaroCard("Шут", "The Fool", "photo", 0, "description", "features", "symbol");
+        return new TaroCard("Шут", "The Fool", "photo", 0, "description", "features", "symbol",true);
     }
 }
