@@ -18,7 +18,9 @@ import ru.readysetcock.fate_telegram_bot.repository.UserRepository;
 import ru.readysetcock.fate_telegram_bot.services.commands.BotCommand;
 import ru.readysetcock.fate_telegram_bot.services.commands.BotCommandProcessor;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.TextStyle;
 import java.util.Locale;
 import java.util.random.RandomGenerator;
@@ -63,40 +65,41 @@ public class CardOfTheDayProcessor implements BotFunctionProcessor, BotCommandPr
         return new Response();
     }
 
-    private Response sendCardOfTheDay(Message message) {
-        TaroCard card;
-        Long userId = message.getChatId();
-        if (cardOfTheDayRepository.existsByUserId(userId).equals(Boolean.FALSE)) {
-            card = getTaroCardOfTheDay(random);
-            cardOfTheDayRepository.save(new TaroCardOfTheDay(userId,
-                    card.getId(), LocalDateTime.now()));
-        } else {
-            card = taroCardRepository.findTaroCardById(cardOfTheDayRepository.findTaroCardOfTheDayByUserId(userId).getCardId());
-        }
-        return Response.builder()
-                .photo(getTaroCardOfTheDayMessage(userRepository.findByTgUserId(userId), card))
-                .build();
-    }
-
-    private Response deleteMessage(Message message) {
-        return new Response(BotApiMethodFactory.deleteMessage(message.getChatId(), message.getMessageId()));
-    }
-
     public SendPhoto getTaroCardOfTheDayMessage(User user, TaroCard card) {
-        return BotApiMethodFactory.messageWithPhoto(user.getChatId(), card.getImageFileId(), """
-                 <b>%s %s %s</b>
+        ZonedDateTime zonedDateTime = ZonedDateTime.now(ZoneId.of("UTC+5"));
+        return BotApiMethodFactory.messageWithPhoto(user.getTgUserId(), card.getImageFileId(), """
+                <b>%s %s %s</b>
                  
                 <b>Ваша карта дня:
                  
                 %s (%s) %s
                                     
                 Описание</b>: %s
-                """.formatted(LocalDateTime.now().getDayOfMonth(), LocalDateTime.now().getMonth().getDisplayName(TextStyle.FULL, new Locale("ru")),
-                LocalDateTime.now().getYear(), card.getRusName(), card.getEngName(), card.getSymbol(),
-                taroCardMeaningRepository.findTaroCardMeaningByCardId(card.getId()).getCardOfTheDay()), InlineKeyboardBuilder.createKeyboardOf(rowOf(button("⬅ Удалить", "%s/delete".formatted(BotFunction.CARDOFTHEDAY)))));
+                """.formatted(zonedDateTime.getDayOfMonth(), zonedDateTime.getMonth().getDisplayName(TextStyle.FULL, new Locale("ru")),
+                zonedDateTime.getYear(), card.getRusName(), card.getEngName(), card.getSymbol(),
+                taroCardMeaningRepository.findTaroCardMeaningByCardId(card.getId()).getCardOfTheDay()), InlineKeyboardBuilder.createKeyboardOf(rowOf(button("🗑️ Удалить", "%s/delete".formatted(BotFunction.CARDOFTHEDAY)))));
     }
 
     public TaroCard getTaroCardOfTheDay(RandomGenerator random) {
         return taroCardRepository.findTaroCardById(random.nextInt(1, AMOUNT_OF_TARO_CARDS + 1));
+    }
+
+    private Response deleteMessage(Message message) {
+        return new Response(BotApiMethodFactory.deleteMessage(message.getChatId(), message.getMessageId()));
+    }
+
+    private Response sendCardOfTheDay(Message message) {
+        TaroCard card;
+        Long userId = message.getChatId();
+        if (cardOfTheDayRepository.existsByUserId(userId).equals(Boolean.FALSE)) {
+            card = getTaroCardOfTheDay(random);
+            cardOfTheDayRepository.save(new TaroCardOfTheDay(userId,
+                    card.getId(), Instant.now()));
+        } else {
+            card = taroCardRepository.findTaroCardById(cardOfTheDayRepository.findTaroCardOfTheDayByUserId(userId).getCardId());
+        }
+        return Response.builder()
+                .photo(getTaroCardOfTheDayMessage(userRepository.findByTgUserId(userId), card))
+                .build();
     }
 }

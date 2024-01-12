@@ -15,9 +15,9 @@ public class UserService {
 
     private final UserRepository repository;
 
-    public void userUpdateService(Update update) {
-            Message message = update.getCallbackQuery().getMessage();
-            Chat chat = message.getChat();
-            repository.save(new User(chat.getId(), message.getChatId(), chat.getFirstName(), chat.getLastName(), chat.getUserName()));
-        }
+    public void updateUser(Update update) {
+        Message message = update.hasCallbackQuery() ? update.getCallbackQuery().getMessage() : update.getMessage();
+        Chat chat = message.getChat();
+        repository.save(new User(chat.getId(), chat.getFirstName(), chat.getLastName(), chat.getUserName()));
     }
+}

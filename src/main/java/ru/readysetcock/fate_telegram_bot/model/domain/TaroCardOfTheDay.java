@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 
 @Entity
@@ -24,6 +25,6 @@ public class TaroCardOfTheDay {
     @Column(name = "card_id")
     private Integer cardId;
 
-    @Column(name = "timestamp")
-    private LocalDateTime timestamp;
+    @Column(name = "updated_timestamp")
+    private Instant updatedTimestamp;
 }
