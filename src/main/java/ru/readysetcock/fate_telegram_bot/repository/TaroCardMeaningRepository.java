@@ -6,4 +6,5 @@ import ru.readysetcock.fate_telegram_bot.model.domain.TaroCardMeaning;
 import java.util.List;
 
 public interface TaroCardMeaningRepository extends CrudRepository<TaroCardMeaning, Integer> {
+    TaroCardMeaning findTaroCardMeaningByCardId(int id);
 }

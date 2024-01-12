@@ -11,4 +11,6 @@ import java.util.List;
 public interface TaroCardRepository extends CrudRepository<TaroCard, Integer> {
     @Query("SELECT t FROM TaroCard t WHERE t.isMajor = true")
     List<TaroCard> findTaroCardsByMajorIsTrue();
+
+    TaroCard findTaroCardById(int id);
 }
