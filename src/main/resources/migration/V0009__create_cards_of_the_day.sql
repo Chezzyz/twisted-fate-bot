@@ -6,4 +6,4 @@ CREATE TABLE IF NOT EXISTS taro_cards_of_the_day
     PRIMARY KEY (user_id),
     UNIQUE (user_id)
 );
-CREATE UNIQUE INDEX card_user_id_udx ON taro_cards_of_the_day using btree(user_id);
+CREATE UNIQUE INDEX IF NOT EXISTS card_user_id_udx ON taro_cards_of_the_day using btree(user_id);

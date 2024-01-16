@@ -7,4 +7,4 @@ CREATE TABLE IF NOT EXISTS users
     PRIMARY KEY (tg_user_id),
     UNIQUE (tg_user_id)
 );
-CREATE UNIQUE INDEX user_id_udx ON users using btree(tg_user_id);
+CREATE UNIQUE INDEX IF NOT EXISTS user_id_udx ON users using btree(tg_user_id);
