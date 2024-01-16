@@ -221,6 +221,18 @@ class TaroDivinationSubprocessorTest {
         assertTrue(sendPhoto.getHasSpoiler());
     }
 
+    @Test
+    void processEmptyResponse(){
+        CallbackQuery query = new CallbackQuery();
+        query.setData("%s/%s/123".formatted(BotFunction.DIVINATION,DivinationType.TARO));
+
+        Response response = sut.process(query);
+
+        assertNull(response.methods());
+        assertNull(response.photo());
+        assertNull(response.photos());
+    }
+
     private TaroLayout createLayout() {
         return new TaroLayout("Кельтский крест", "Celtic cross",
                 "layout", "1.Смысл проблемы&2.Привходящие обстоятельства",
