@@ -6,14 +6,20 @@ import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.readysetcock.fate_telegram_bot.messages.BotApiMethodFactory;
+import ru.readysetcock.fate_telegram_bot.messages.InlineKeyboardBuilder;
 import ru.readysetcock.fate_telegram_bot.messages.Response;
+import ru.readysetcock.fate_telegram_bot.model.domain.User;
+import ru.readysetcock.fate_telegram_bot.repository.UserRepository;
 import ru.readysetcock.fate_telegram_bot.services.commands.BotCommandProcessor;
+import ru.readysetcock.fate_telegram_bot.services.functions.BotFunction;
 import ru.readysetcock.fate_telegram_bot.services.functions.BotFunctionProcessor;
+import ru.readysetcock.fate_telegram_bot.services.functions.BotState;
 
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
 
 /**
  * Контроллер, распределяющий входящие запросы в сервисы.
@@ -21,14 +27,16 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 public class BotServicesController {
+    private final UserRepository userRepository;
     private final Map<String, BotCommandProcessor> commandProcessorsMap;
     private final Map<String, BotFunctionProcessor> functionProcessorsMap;
 
-    public BotServicesController(List<BotCommandProcessor> commandProcessors, List<BotFunctionProcessor> functionProcessors) {
+    public BotServicesController(List<BotCommandProcessor> commandProcessors, List<BotFunctionProcessor> functionProcessors, UserRepository userRepository) {
         commandProcessorsMap = commandProcessors.stream()
                 .collect(Collectors.toMap(processor -> processor.getCommand().getCommandText(), Function.identity()));
         functionProcessorsMap = functionProcessors.stream()
                 .collect(Collectors.toMap(processor -> processor.getFunction().getFunctionName(), Function.identity()));
+        this.userRepository = userRepository;
     }
 
     public Response getResponse(Update update) {
@@ -36,6 +44,8 @@ public class BotServicesController {
             return processWithCommand(update.getMessage());
         } else if (update.hasCallbackQuery()) {
             return processWithCallbackQuery(update.getCallbackQuery());
+        } else if (update.hasMessage() && userRepository.existsByTgUserIdAndStateIsNotNull(update.getMessage().getChatId())) {
+            return processWithState(update);
         } else if (update.hasMessage()) {
             log.info("Получил хуй пойми че");
             return createDefaultMessage(update.getMessage().getChatId());
@@ -68,6 +78,24 @@ public class BotServicesController {
             log.warn("Получил callback неизвестной функции '{}'", data);
             return createNotImplementedCallbackQueryAnswer(query.getId());
         }
+    }
+
+    private Response processWithState(Update update) {
+        BotState currentState = BotState.values()[userRepository.findByTgUserId(update.getMessage().getChatId()).getState()];
+        return switch (currentState) {
+            case QUESTION -> processQuestionState(update);
+        };
+    }
+
+    private Response processQuestionState(Update update) {
+        String question = update.getMessage().getText();
+        User user = userRepository.findByTgUserId(update.getMessage().getChatId());
+        user.setState(null);
+        userRepository.save(user);
+        return new Response(BotApiMethodFactory.inlineKeyboardMessage(update.getMessage().getChatId(), "Ваш вопрос: %s".formatted(question),
+                InlineKeyboardBuilder.createKeyboardOf(InlineKeyboardBuilder
+                        .rowOf(InlineKeyboardBuilder.button("Да", "\uD83D\uDC4D", BotFunction.KABBALAH.getFunctionName().concat("/question")),
+                                InlineKeyboardBuilder.button("Нет", "\uD83D\uDC4E", BotFunction.KABBALAH.getFunctionName().concat("/div"))))));
     }
 
     private Response createUnknownCommandMessage(Long chatId) {

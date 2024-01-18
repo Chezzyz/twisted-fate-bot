@@ -6,6 +6,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "users")
@@ -25,6 +26,10 @@ public class User {
 
     @Column(name = "user_name")
     private String userName;
+
+    @Column(name = "state")
+    @Setter
+    private Integer state;
 
     public User(Long tgUserId, String firstName, String lastName, String userName){
         this.tgUserId = tgUserId;

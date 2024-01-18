@@ -18,6 +18,8 @@ public class UserService {
     public void updateUser(Update update) {
         Message message = update.hasCallbackQuery() ? update.getCallbackQuery().getMessage() : update.getMessage();
         Chat chat = message.getChat();
-        repository.save(new User(chat.getId(), chat.getFirstName(), chat.getLastName(), chat.getUserName()));
+        if (!repository.existsByTgUserIdAndFirstNameAndLastNameAndUserName(chat.getId(), chat.getFirstName(), chat.getLastName(), chat.getUserName())) {
+            repository.save(new User(chat.getId(), chat.getFirstName(), chat.getLastName(), chat.getUserName()));
+        }
     }
 }
