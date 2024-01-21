@@ -8,7 +8,7 @@ import ru.readysetcock.fate_telegram_bot.model.domain.User;
 public interface UserRepository extends CrudRepository<User, Long> {
     User findByTgUserId(Long tgUserId);
 
-    boolean existsByTgUserIdAndStateIsNotNull(long tgUserId);
+    boolean existsByTgUserIdAndStateIsNotNull(Long tgUserId);
 
     boolean existsByTgUserIdAndFirstNameAndLastNameAndUserName(Long tgUserId, String firstName, String lastName, String userName);
 }

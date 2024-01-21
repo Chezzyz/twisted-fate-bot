@@ -9,7 +9,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.readysetcock.fate_telegram_bot.formatters.SessionIdFormatter;
 import ru.readysetcock.fate_telegram_bot.messages.MessageSender;
 import ru.readysetcock.fate_telegram_bot.services.BotServicesController;
-import ru.readysetcock.fate_telegram_bot.services.UserService;
+import ru.readysetcock.fate_telegram_bot.services.domain.UserService;
 
 @Component
 @Slf4j

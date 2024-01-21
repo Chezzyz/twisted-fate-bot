@@ -1,4 +1,4 @@
-package ru.readysetcock.fate_telegram_bot.services;
+package ru.readysetcock.fate_telegram_bot.services.domain;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,5 +21,21 @@ public class UserService {
         if (!repository.existsByTgUserIdAndFirstNameAndLastNameAndUserName(chat.getId(), chat.getFirstName(), chat.getLastName(), chat.getUserName())) {
             repository.save(new User(chat.getId(), chat.getFirstName(), chat.getLastName(), chat.getUserName()));
         }
+    }
+
+    public User findByUserId(Long userId) {
+        return repository.findByTgUserId(userId);
+    }
+
+    public boolean hasState(Long userId) {
+        return repository.existsByTgUserIdAndStateIsNotNull(userId);
+    }
+
+    public User save(User user) {
+        return repository.save(user);
+    }
+
+    public Iterable<User> findAll() {
+        return repository.findAll();
     }
 }

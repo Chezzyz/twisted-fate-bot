@@ -6,6 +6,5 @@ import ru.readysetcock.fate_telegram_bot.model.domain.TaroCardOfTheDay;
 
 @Repository
 public interface TaroCardOfTheDayRepository extends CrudRepository<TaroCardOfTheDay, Long> {
-    Boolean existsByUserId(Long id);
     TaroCardOfTheDay findTaroCardOfTheDayByUserId(Long id);
 }

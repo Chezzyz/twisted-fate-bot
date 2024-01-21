@@ -9,13 +9,13 @@ import ru.readysetcock.fate_telegram_bot.messages.BotApiMethodFactory;
 import ru.readysetcock.fate_telegram_bot.messages.InlineKeyboardBuilder;
 import ru.readysetcock.fate_telegram_bot.messages.Response;
 import ru.readysetcock.fate_telegram_bot.model.domain.User;
-import ru.readysetcock.fate_telegram_bot.repository.KabbalisticNumberRepository;
-import ru.readysetcock.fate_telegram_bot.repository.UserRepository;
+import ru.readysetcock.fate_telegram_bot.services.calcs.KabbalahCalcs;
 import ru.readysetcock.fate_telegram_bot.services.commands.BotCommand;
 import ru.readysetcock.fate_telegram_bot.services.commands.BotCommandProcessor;
+import ru.readysetcock.fate_telegram_bot.services.domain.KabbalahNumberService;
+import ru.readysetcock.fate_telegram_bot.services.domain.UserService;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import static ru.readysetcock.fate_telegram_bot.messages.InlineKeyboardBuilder.button;
@@ -25,8 +25,9 @@ import static ru.readysetcock.fate_telegram_bot.messages.InlineKeyboardBuilder.r
 @RequiredArgsConstructor
 public class KabbalahProcessor implements BotCommandProcessor, BotFunctionProcessor {
 
-    private final UserRepository userRepository;
-    private final KabbalisticNumberRepository numberRepository;
+    private final UserService userService;
+    private final KabbalahNumberService numberService;
+    private final KabbalahCalcs calcs;
 
     @Override
     public BotCommand getCommand() {
@@ -58,98 +59,34 @@ public class KabbalahProcessor implements BotCommandProcessor, BotFunctionProces
         return new Response();
     }
 
+    private Response getQuestion(CallbackQuery query) {
+        Message message = query.getMessage();
+        User user = userService.findByUserId(query.getMessage().getChatId());
+        user.setState(BotState.QUESTION.getStateName());
+        userService.save(user);
+        return new Response(BotApiMethodFactory.messageEdit(message.getChatId(), message.getMessageId(), BotState.QUESTION.getText(), InlineKeyboardBuilder.createKeyboardOf(
+                rowOf(button("⬅ Назад", BotFunction.KABBALAH.getFunctionName())))));
+    }
+
     private Response getKabbalahDiv(CallbackQuery query) {
         Message message = query.getMessage();
-        List<Integer> mainRow = getLettersCount(message);
-        List<List<Integer>> triangle = generateNumericalTriangle(mainRow);
+        User user = userService.findByUserId(message.getChatId());
+        List<Integer> mainRow = calcs.getLettersCount(message.getText(), user.getFirstName(), user.getLastName());
+        List<List<Integer>> triangle = calcs.generateNumericalTriangle(mainRow);
         return new Response(BotApiMethodFactory.messageEdit(message.getChatId(), message.getMessageId(),
-                numberRepository.findById(getDivResult(triangle)).orElseThrow().getDivinationMeaning(),
+                numberService.findById(calcs.getDivResult(triangle)).getDivinationMeaning(),
                 InlineKeyboardBuilder.createKeyboardOf(rowOf(button("⬅ Назад", BotFunction.KABBALAH.getFunctionName())))));
     }
 
     private Response getKabbalahNum(CallbackQuery query) {
         Message message = query.getMessage();
-        User user = userRepository.findByTgUserId(query.getMessage().getChatId());
-        int[] numbers = getNumResult(user.getFirstName(), user.getLastName());
+        User user = userService.findByUserId(query.getMessage().getChatId());
+        List<Integer> numbers = calcs.getNumResult(user.getFirstName(), user.getLastName());
         return new Response(BotApiMethodFactory.messageEdit(message.getChatId(), message.getMessageId(), getNumResponseText(numbers, user),
                 InlineKeyboardBuilder.createKeyboardOf(rowOf(button("⬅ Назад", BotFunction.KABBALAH.getFunctionName())))));
     }
 
-    private List<Integer> getLettersCount(Message message) {
-        String[] words = message.getText().replace("Ваш вопрос: ", "").replaceAll("[^а-яА-Яa-zA-Z0-9 ]", "").trim().split("\\s+");
-        List<Integer> lettersCount = new ArrayList<>();
-        User user = userRepository.findByTgUserId(message.getChatId());
-        lettersCount.add(user.getLastName().length());
-        lettersCount.add(user.getFirstName().length());
-        for (String word : words) {
-            lettersCount.add(word.length());
-        }
-        return lettersCount;
-    }
-
-    private List<List<Integer>> generateNumericalTriangle(List<Integer> mainRow) {
-        List<List<Integer>> triangle = new ArrayList<>();
-        triangle.add(mainRow);
-        while (triangle.size() < mainRow.size()) {
-            List<Integer> newRow = new ArrayList<>();
-            List<Integer> lastRow = triangle.get(triangle.size() - 1);
-            for (int i = 1; i < lastRow.size(); i++) {
-                int sum = lastRow.get(i - 1) + lastRow.get(i);
-                if (sum > 18) {
-                    sum -= 18;
-                }
-                newRow.add(sum);
-            }
-            triangle.add(newRow);
-        }
-        Collections.reverse(triangle);
-        return triangle;
-    }
-
-    private int getDivResult(List<List<Integer>> triangle) {
-        List<Integer> finalRow = new ArrayList<>();
-        for (int i = 0; i < triangle.size(); i++) {
-            for (List<Integer> integers : triangle) {
-                if (i < integers.size()) {
-                    finalRow.add(integers.get(i));
-                }
-            }
-        }
-        int result = 0;
-        for (Integer integer : finalRow) {
-            result += integer;
-            if (integer == 9) {
-                break;
-            }
-        }
-        result %= 9;
-        if (result == 0) {
-            result = 9;
-        }
-        return result;
-    }
-
-    private int[] getNumResult(String firstName, String lastName) {
-        int result = 0;
-        for (char letter : firstName.concat(lastName).toCharArray()) {
-            result += numberRepository.findByLettersContaining(letter).getNumValue();
-        }
-        if (numberRepository.existsByNumValue(result).equals(Boolean.FALSE)) {
-            int numberOfDigits = String.valueOf(result).length();
-            int[] numbers = new int[numberOfDigits];
-            for (int i = 0; i < numberOfDigits; i++) {
-                numbers[i] = (result % 10) * (int) Math.pow(10, i);
-                result /= 10;
-            }
-            return numbers;
-        } else {
-            int[] numbers = new int[1];
-            numbers[0] = result;
-            return numbers;
-        }
-    }
-
-    private String getNumResponseText(int[] numbers, User user) {
+    private String getNumResponseText(List<Integer> numbers, User user) {
         List<String> descriptionList = new ArrayList<>();
         descriptionList.add("""
                 <b>Имя:</b> %s
@@ -162,7 +99,7 @@ public class KabbalahProcessor implements BotCommandProcessor, BotFunctionProces
             if (!String.valueOf(number).equals("0")) {
                 descriptionList.add("""
                         <b>%s</b> - %s
-                        """.formatted(number, numberRepository.findById(number).orElseThrow().getMeaning()));
+                        """.formatted(number, numberService.findById(number).getMeaning()));
             }
         }
         return String.join("", descriptionList);
@@ -176,15 +113,6 @@ public class KabbalahProcessor implements BotCommandProcessor, BotFunctionProces
     private Response editToButtonsWithTypes(CallbackQuery query) {
         Message message = query.getMessage();
         return new Response(BotApiMethodFactory.messageEdit(message.getChatId(), message.getMessageId(), "Выберите тип каббалистического ремесла", getKeyboardOfKabbalahTypes()));
-    }
-
-    private Response getQuestion(CallbackQuery query) {
-        Message message = query.getMessage();
-        User user = userRepository.findByTgUserId(query.getMessage().getChatId());
-        user.setState(0);
-        userRepository.save(user);
-        return new Response(BotApiMethodFactory.messageEdit(message.getChatId(), message.getMessageId(), BotState.QUESTION.getText(), InlineKeyboardBuilder.createKeyboardOf(
-                rowOf(button("⬅ Назад", BotFunction.KABBALAH.getFunctionName())))));
     }
 
     private InlineKeyboardMarkup getKeyboardOfKabbalahTypes() {

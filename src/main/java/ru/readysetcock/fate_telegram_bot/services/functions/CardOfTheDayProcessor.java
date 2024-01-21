@@ -11,12 +11,12 @@ import ru.readysetcock.fate_telegram_bot.messages.Response;
 import ru.readysetcock.fate_telegram_bot.model.domain.TaroCard;
 import ru.readysetcock.fate_telegram_bot.model.domain.TaroCardOfTheDay;
 import ru.readysetcock.fate_telegram_bot.model.domain.User;
-import ru.readysetcock.fate_telegram_bot.repository.TaroCardMeaningRepository;
-import ru.readysetcock.fate_telegram_bot.repository.TaroCardOfTheDayRepository;
-import ru.readysetcock.fate_telegram_bot.repository.TaroCardRepository;
-import ru.readysetcock.fate_telegram_bot.repository.UserRepository;
 import ru.readysetcock.fate_telegram_bot.services.commands.BotCommand;
 import ru.readysetcock.fate_telegram_bot.services.commands.BotCommandProcessor;
+import ru.readysetcock.fate_telegram_bot.services.domain.TaroCardMeaningService;
+import ru.readysetcock.fate_telegram_bot.services.domain.TaroCardOfTheDayService;
+import ru.readysetcock.fate_telegram_bot.services.domain.TaroCardService;
+import ru.readysetcock.fate_telegram_bot.services.domain.UserService;
 
 import java.time.Instant;
 import java.time.ZoneId;
@@ -33,19 +33,19 @@ import static ru.readysetcock.fate_telegram_bot.messages.InlineKeyboardBuilder.r
 public class CardOfTheDayProcessor implements BotFunctionProcessor, BotCommandProcessor {
     private static final int AMOUNT_OF_TARO_CARDS = 78;
     private final RandomGenerator random = RandomGenerator.getDefault();
-    private final TaroCardOfTheDayRepository cardOfTheDayRepository;
-    private final TaroCardRepository taroCardRepository;
-    private final TaroCardMeaningRepository taroCardMeaningRepository;
-    private final UserRepository userRepository;
+    private final TaroCardOfTheDayService cardOfTheDayService;
+    private final TaroCardService taroCardService;
+    private final TaroCardMeaningService meaningService;
+    private final UserService userService;
 
     @Override
     public BotCommand getCommand() {
-        return BotCommand.CARDOFTHEDAY;
+        return BotCommand.CARD_OF_THE_DAY;
     }
 
     @Override
     public BotFunction getFunction() {
-        return BotFunction.CARDOFTHEDAY;
+        return BotFunction.CARD_OF_THE_DAY;
     }
 
     @Override
@@ -57,9 +57,9 @@ public class CardOfTheDayProcessor implements BotFunctionProcessor, BotCommandPr
     public Response process(CallbackQuery query) {
         Message message = query.getMessage();
         String data = query.getData();
-        if (data.equals(BotFunction.CARDOFTHEDAY.toString())) {
+        if (data.equals(BotFunction.CARD_OF_THE_DAY.toString())) {
             return sendCardOfTheDay(message);
-        } else if (data.equals("%s/delete".formatted(BotFunction.CARDOFTHEDAY))) {
+        } else if (data.equals("%s/delete".formatted(BotFunction.CARD_OF_THE_DAY))) {
             return deleteMessage(message);
         }
         return new Response();
@@ -77,11 +77,11 @@ public class CardOfTheDayProcessor implements BotFunctionProcessor, BotCommandPr
                 Описание</b>: %s
                 """.formatted(zonedDateTime.getDayOfMonth(), zonedDateTime.getMonth().getDisplayName(TextStyle.FULL, new Locale("ru")),
                 zonedDateTime.getYear(), card.getRusName(), card.getEngName(), card.getSymbol(),
-                taroCardMeaningRepository.findTaroCardMeaningByCardId(card.getId()).getCardOfTheDay()), InlineKeyboardBuilder.createKeyboardOf(rowOf(button("🗑️ Удалить", "%s/delete".formatted(BotFunction.CARDOFTHEDAY)))));
+                meaningService.findById(card.getId()).getCardOfTheDay()), InlineKeyboardBuilder.createKeyboardOf(rowOf(button("🗑️ Удалить", "%s/delete".formatted(BotFunction.CARD_OF_THE_DAY)))));
     }
 
     public TaroCard getTaroCardOfTheDay(RandomGenerator random) {
-        return taroCardRepository.findTaroCardById(random.nextInt(1, AMOUNT_OF_TARO_CARDS + 1));
+        return taroCardService.findById(random.nextInt(1, AMOUNT_OF_TARO_CARDS + 1));
     }
 
     private Response deleteMessage(Message message) {
@@ -91,15 +91,15 @@ public class CardOfTheDayProcessor implements BotFunctionProcessor, BotCommandPr
     private Response sendCardOfTheDay(Message message) {
         TaroCard card;
         Long userId = message.getChatId();
-        if (cardOfTheDayRepository.existsByUserId(userId).equals(Boolean.FALSE)) {
+        if (!cardOfTheDayService.existById(userId)) {
             card = getTaroCardOfTheDay(random);
-            cardOfTheDayRepository.save(new TaroCardOfTheDay(userId,
+            cardOfTheDayService.save(new TaroCardOfTheDay(userId,
                     card.getId(), Instant.now()));
         } else {
-            card = taroCardRepository.findTaroCardById(cardOfTheDayRepository.findTaroCardOfTheDayByUserId(userId).getCardId());
+            card = taroCardService.findById(cardOfTheDayService.findById(userId).getCardId());
         }
         return Response.builder()
-                .photo(getTaroCardOfTheDayMessage(userRepository.findByTgUserId(userId), card))
+                .photo(getTaroCardOfTheDayMessage(userService.findByUserId(userId), card))
                 .build();
     }
 }

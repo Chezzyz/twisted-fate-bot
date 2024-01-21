@@ -13,6 +13,8 @@ import ru.readysetcock.fate_telegram_bot.messages.PhotoGroupBuilder;
 import ru.readysetcock.fate_telegram_bot.messages.Response;
 import ru.readysetcock.fate_telegram_bot.model.domain.*;
 import ru.readysetcock.fate_telegram_bot.repository.*;
+import ru.readysetcock.fate_telegram_bot.services.domain.TaroCardMeaningService;
+import ru.readysetcock.fate_telegram_bot.services.domain.TaroCardService;
 import ru.readysetcock.fate_telegram_bot.services.functions.BotFunction;
 
 import java.util.*;
@@ -26,8 +28,8 @@ import static ru.readysetcock.fate_telegram_bot.messages.InlineKeyboardBuilder.r
 public class TaroDivinationSubprocessor implements DivinationSubprocessor {
 
     private final TaroLayoutRepository taroLayoutRepository;
-    private final TaroCardRepository taroCardRepository;
-    private final TaroCardMeaningRepository taroCardMeaningRepository;
+    private final TaroCardService taroCardService;
+    private final TaroCardMeaningService meaningService;
     private static final int TOPIC_ORDER_NUM = 3;
     private static final int MIN_OR_NOMIN_ORDER_NUM = 4;
     private static final int DECK_ORDER_NUM = 2;
@@ -92,9 +94,9 @@ public class TaroDivinationSubprocessor implements DivinationSubprocessor {
         List<TaroCard> layoutCards = new ArrayList<>();
         Set<Integer> uniqueIndexes = new HashSet<>();
         if (data.contains("/nomin/")) {
-            cards = taroCardRepository.findTaroCardsByMajorIsTrue();
+            cards = taroCardService.getMajorCards();
         } else {
-            taroCardRepository.findAll().forEach(cards::add);
+            taroCardService.findAll().forEach(cards::add);
         }
         while (uniqueIndexes.size() < taroLayout.getNumberOfCards()) {
             int randomIndex = random.nextInt(cards.size());
@@ -118,7 +120,7 @@ public class TaroDivinationSubprocessor implements DivinationSubprocessor {
                 """.formatted(DivinationTopic.getRusNameByFunctionName(topicName), taroLayout.getSymbol(), taroLayout.getRusName(), taroLayout.getSymbol()));
         for (int i = 0; i < taroLayout.getNumberOfCards(); i++) {
             String[] layoutPositionText = taroLayout.getSchemeInfo().split("&")[i].split("\\.");
-            TaroCardMeaning taroCardMeaning = taroCardMeaningRepository.findById(layoutCards.get(i).getId()).orElseThrow();
+            TaroCardMeaning taroCardMeaning = meaningService.findById(layoutCards.get(i).getId());
             String s = """
                     %s <tg-spoiler>%s
                     %s %s:

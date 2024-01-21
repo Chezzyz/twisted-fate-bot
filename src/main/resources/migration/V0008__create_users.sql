@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS users
     first_name varchar(255),
     last_name  varchar(255),
     user_name  varchar(255),
-    state      smallint,
+    state      varchar(255),
     PRIMARY KEY (tg_user_id),
     UNIQUE (tg_user_id)
 );

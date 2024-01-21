@@ -12,9 +12,9 @@ import ru.readysetcock.fate_telegram_bot.messages.BotApiMethodFactory;
 import ru.readysetcock.fate_telegram_bot.messages.InlineKeyboardBuilder;
 import ru.readysetcock.fate_telegram_bot.messages.Response;
 import ru.readysetcock.fate_telegram_bot.model.domain.TaroCard;
-import ru.readysetcock.fate_telegram_bot.repository.TaroCardRepository;
 import ru.readysetcock.fate_telegram_bot.services.commands.BotCommand;
 import ru.readysetcock.fate_telegram_bot.services.commands.BotCommandProcessor;
+import ru.readysetcock.fate_telegram_bot.services.domain.TaroCardService;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,7 +27,7 @@ import static ru.readysetcock.fate_telegram_bot.messages.InlineKeyboardBuilder.r
 @RequiredArgsConstructor
 public class TaroCatalogueProcessor implements BotFunctionProcessor, BotCommandProcessor {
 
-    private final TaroCardRepository repository;
+    private final TaroCardService taroCardService;
 
     @Override
     public BotFunction getFunction() {
@@ -93,12 +93,12 @@ public class TaroCatalogueProcessor implements BotFunctionProcessor, BotCommandP
     }
 
     private TaroCard getTaroCardById(int id) {
-        return repository.findById(id).orElse(null);
+        return taroCardService.findById(id);
     }
 
     private InlineKeyboardMarkup getAllCardsKeyboard() {
         List<InlineKeyboardButton> buttons = new ArrayList<>();
-        repository.findAll().forEach(taroCard -> buttons.add(button(taroCard.getRusName(), taroCard.getSymbol(),
+        taroCardService.findAll().forEach(taroCard -> buttons.add(button(taroCard.getRusName(), taroCard.getSymbol(),
                 BotFunction.TAROS.getFunctionName() + "/id/" + taroCard.getId())));
         buttons.add(button("⬅ Назад", BotFunction.CATALOGUE.getFunctionName()));
         return InlineKeyboardBuilder.createKeyboardOf(buttons);

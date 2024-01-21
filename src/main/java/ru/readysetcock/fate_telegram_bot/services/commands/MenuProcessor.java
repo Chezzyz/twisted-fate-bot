@@ -43,7 +43,7 @@ public class MenuProcessor implements BotCommandProcessor, BotFunctionProcessor 
                 rowOf(button("\uD83D\uDD12 Чакроанализ", "☸", "chakras")),
                 rowOf(button("\uD83D\uDD12 Расчет аркан", "\uD83C\uDCCF", "arcanes")),
                 rowOf(button("Справочники", "\uD83D\uDCDA", "catalogue")),
-                rowOf(button("Карта дня", "🔮📆", BotFunction.CARDOFTHEDAY.toString()))
+                rowOf(button("Карта дня", "🔮📆", BotFunction.CARD_OF_THE_DAY.toString()))
         );
     }
 }

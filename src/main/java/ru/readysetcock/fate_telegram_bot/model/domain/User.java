@@ -29,7 +29,7 @@ public class User {
 
     @Column(name = "state")
     @Setter
-    private Integer state;
+    private String state;
 
     public User(Long tgUserId, String firstName, String lastName, String userName){
         this.tgUserId = tgUserId;

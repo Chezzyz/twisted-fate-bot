@@ -7,5 +7,5 @@ import ru.readysetcock.fate_telegram_bot.model.domain.KabbalisticNumber;
 @Repository
 public interface KabbalisticNumberRepository extends CrudRepository<KabbalisticNumber,Integer> {
     KabbalisticNumber findByLettersContaining(char symbol);
-    Boolean existsByNumValue(int value);
+    boolean existsByNumValue(int value);
 }

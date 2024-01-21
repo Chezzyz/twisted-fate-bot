@@ -10,12 +10,11 @@ import ru.readysetcock.fate_telegram_bot.messages.Response;
 import ru.readysetcock.fate_telegram_bot.model.domain.TaroCard;
 import ru.readysetcock.fate_telegram_bot.model.domain.TaroCardOfTheDay;
 import ru.readysetcock.fate_telegram_bot.model.domain.User;
-import ru.readysetcock.fate_telegram_bot.repository.TaroCardOfTheDayRepository;
-import ru.readysetcock.fate_telegram_bot.repository.UserRepository;
+import ru.readysetcock.fate_telegram_bot.services.domain.TaroCardOfTheDayService;
+import ru.readysetcock.fate_telegram_bot.services.domain.UserService;
 import ru.readysetcock.fate_telegram_bot.services.functions.CardOfTheDayProcessor;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.random.RandomGenerator;
 
 @Service
@@ -23,18 +22,18 @@ import java.util.random.RandomGenerator;
 public class CardOfTheDayScheduler {
     private final CardOfTheDayProcessor processor;
     private final TelegramController controller;
-    private final UserRepository userRepository;
-    private final TaroCardOfTheDayRepository cardOfTheDayRepository;
+    private final UserService userService;
+    private final TaroCardOfTheDayService cardOfTheDayService;
 
     @Scheduled(cron = "0 0 10 * * ?", zone = "GMT+05") // 0 - секунды, 0 - минуты, 10-часы, * - каждый день, * - каждый месяц, ? - каждый код
     public void sendCardOfTheDayMessage() {
         RandomGenerator random = RandomGenerator.getDefault();
-        userRepository.findAll().forEach(user -> sendCard(user, random));
+        userService.findAll().forEach(user -> sendCard(user, random));
     }
 
     private void sendCard(User user, RandomGenerator random) {
         TaroCard card = processor.getTaroCardOfTheDay(random);
-        cardOfTheDayRepository.save(new TaroCardOfTheDay(user.getTgUserId(), card.getId(), Instant.now()));
+        cardOfTheDayService.save(new TaroCardOfTheDay(user.getTgUserId(), card.getId(), Instant.now()));
         SendPhoto sendPhoto = processor.getTaroCardOfTheDayMessage(user, card);
         MessageSender.sendResponse(Response.builder()
                 .photo(sendPhoto)
