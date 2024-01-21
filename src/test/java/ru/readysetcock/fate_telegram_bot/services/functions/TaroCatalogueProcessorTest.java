@@ -15,11 +15,10 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import ru.readysetcock.fate_telegram_bot.messages.Response;
 import ru.readysetcock.fate_telegram_bot.model.domain.TaroCard;
-import ru.readysetcock.fate_telegram_bot.repository.TaroCardRepository;
 import ru.readysetcock.fate_telegram_bot.services.commands.BotCommand;
+import ru.readysetcock.fate_telegram_bot.services.domain.TaroCardService;
 
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -28,13 +27,13 @@ import static org.mockito.Mockito.*;
 class TaroCatalogueProcessorTest {
 
     @Mock
-    private TaroCardRepository repository;
+    private TaroCardService service;
 
     private TaroCatalogueProcessor sut;
 
     @BeforeEach
     public void init() {
-        sut = new TaroCatalogueProcessor(repository);
+        sut = new TaroCatalogueProcessor(service);
     }
 
     @Test
@@ -51,7 +50,7 @@ class TaroCatalogueProcessorTest {
     void process() {
         Message message = new Message();
         message.setChat(new Chat(1L, "type"));
-        when(repository.findAll()).thenReturn(List.of(createTaroCard(), createTaroCard()));
+        when(service.findAll()).thenReturn(List.of(createTaroCard(), createTaroCard()));
 
         Response response = sut.process(message);
 
@@ -74,7 +73,7 @@ class TaroCatalogueProcessorTest {
         query.setMessage(new Message());
         query.getMessage().setChat(new Chat(1L, "type"));
         query.getMessage().setMessageId(1);
-        when(repository.findAll()).thenReturn(List.of(createTaroCard(), createTaroCard()));
+        when(service.findAll()).thenReturn(List.of(createTaroCard(), createTaroCard()));
 
         Response response = sut.process(query);
 
@@ -94,7 +93,7 @@ class TaroCatalogueProcessorTest {
     void processSendTaroCard() {
         int taroCardId = 1;
         TaroCard taroCard = createTaroCard();
-        when(repository.findById(taroCardId)).thenReturn(Optional.of(taroCard));
+        when(service.findById(taroCardId)).thenReturn(taroCard);
         CallbackQuery query = new CallbackQuery();
         query.setMessage(new Message());
         query.getMessage().setChat(new Chat(1L, "type"));

@@ -39,9 +39,11 @@ public class MenuProcessor implements BotCommandProcessor, BotFunctionProcessor 
     private InlineKeyboardMarkup createMenuKeyboard() {
         return InlineKeyboardBuilder.createKeyboardOf(
                 rowOf(button("Гадание", "\uD83D\uDD2E", "div")),
+                rowOf(button("Каббала", "\uD83D\uDCD6", BotFunction.KABBALAH.toString())),
                 rowOf(button("\uD83D\uDD12 Чакроанализ", "☸", "chakras")),
                 rowOf(button("\uD83D\uDD12 Расчет аркан", "\uD83C\uDCCF", "arcanes")),
-                rowOf(button("Справочники", "\uD83D\uDCDA", "catalogue"))
+                rowOf(button("Справочники", "\uD83D\uDCDA", "catalogue")),
+                rowOf(button("Карта дня", "🔮📆", BotFunction.CARD_OF_THE_DAY.toString()))
         );
     }
 }

@@ -9,18 +9,21 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.readysetcock.fate_telegram_bot.formatters.SessionIdFormatter;
 import ru.readysetcock.fate_telegram_bot.messages.MessageSender;
 import ru.readysetcock.fate_telegram_bot.services.BotServicesController;
+import ru.readysetcock.fate_telegram_bot.services.domain.UserService;
 
 @Component
 @Slf4j
 public class TelegramController extends TelegramLongPollingBot {
     private final String botName;
     private final BotServicesController botServicesController;
+    private final UserService userService;
 
 
-    public TelegramController(@Value("${bot.api.token}") String botToken, @Value("${bot.name}") String botName, BotServicesController botServicesController) {
+    public TelegramController(@Value("${bot.api.token}") String botToken, @Value("${bot.name}") String botName, BotServicesController botServicesController, UserService userServices) {
         super(botToken);
         this.botName = botName;
         this.botServicesController = botServicesController;
+        this.userService = userServices;
     }
 
     @Override
@@ -37,9 +40,10 @@ public class TelegramController extends TelegramLongPollingBot {
     private void workerRun(Update update){
         MDC.put(SessionIdFormatter.SESSION_ID_TAG, SessionIdFormatter.formatSid(update));
 
+        userService.updateUser(update);
+
         MessageSender.sendResponse(botServicesController.getResponse(update), this);
 
         MDC.remove(SessionIdFormatter.SESSION_ID_TAG);
     }
-
 }
