@@ -19,9 +19,9 @@ import ru.readysetcock.fate_telegram_bot.messages.Response;
 import ru.readysetcock.fate_telegram_bot.model.domain.TaroCard;
 import ru.readysetcock.fate_telegram_bot.model.domain.TaroCardMeaning;
 import ru.readysetcock.fate_telegram_bot.model.domain.TaroLayout;
-import ru.readysetcock.fate_telegram_bot.repository.TaroCardMeaningRepository;
-import ru.readysetcock.fate_telegram_bot.repository.TaroCardRepository;
 import ru.readysetcock.fate_telegram_bot.repository.TaroLayoutRepository;
+import ru.readysetcock.fate_telegram_bot.services.domain.TaroCardMeaningService;
+import ru.readysetcock.fate_telegram_bot.services.domain.TaroCardService;
 import ru.readysetcock.fate_telegram_bot.services.functions.BotFunction;
 
 import java.util.List;
@@ -29,23 +29,24 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class TaroDivinationSubprocessorTest {
 
     @Mock
-    private TaroCardRepository cardRepository;
+    private TaroCardService cardService;
     @Mock
     private TaroLayoutRepository layoutRepository;
     @Mock
-    private TaroCardMeaningRepository meaningRepository;
+    private TaroCardMeaningService meaningService;
 
     private TaroDivinationSubprocessor sut;
 
     @BeforeEach
     public void init() {
-        sut = new TaroDivinationSubprocessor(layoutRepository, cardRepository, meaningRepository);
+        sut = new TaroDivinationSubprocessor(layoutRepository, cardService, meaningService);
     }
 
     @Test
@@ -146,9 +147,9 @@ class TaroDivinationSubprocessorTest {
         query.setMessage(new Message());
         query.getMessage().setChat(new Chat(1L, "type"));
         query.getMessage().setMessageId(1);
-        when(layoutRepository.findById(any())).thenReturn(Optional.of(createLayout()));
-        when(cardRepository.findTaroCardsByMajorIsTrue()).thenReturn(List.of(taroCard, taroCard, taroCard));
-        when(meaningRepository.findById(any())).thenReturn(Optional.of(createMeaning()));
+        when(layoutRepository.findById(anyInt())).thenReturn(Optional.of(createLayout()));
+        when(cardService.getMajorCards()).thenReturn(List.of(taroCard, taroCard, taroCard));
+        when(meaningService.findById(anyInt())).thenReturn(createMeaning());
 
         Response response = sut.process(query);
 
@@ -189,9 +190,9 @@ class TaroDivinationSubprocessorTest {
         query.setMessage(new Message());
         query.getMessage().setChat(new Chat(1L, "type"));
         query.getMessage().setMessageId(1);
-        when(layoutRepository.findById(any())).thenReturn(Optional.of(createLayout()));
-        when(cardRepository.findTaroCardsByMajorIsTrue()).thenReturn(List.of(taroCard, taroCard, taroCard));
-        when(meaningRepository.findById(any())).thenReturn(Optional.of(createMeaning()));
+        when(layoutRepository.findById(anyInt())).thenReturn(Optional.of(createLayout()));
+        when(cardService.getMajorCards()).thenReturn(List.of(taroCard, taroCard, taroCard));
+        when(meaningService.findById(anyInt())).thenReturn(createMeaning());
 
         Response response = sut.process(query);
 
@@ -240,7 +241,9 @@ class TaroDivinationSubprocessorTest {
                 "✝", "general", 2);
     }
     private TaroCard createTaroCard() {
-        return new TaroCard("Шут", "The Fool", "photo", 0, "description", "features", "symbol", true);
+        TaroCard taroCard = new TaroCard("Шут", "The Fool", "photo", 0, "description", "features", "symbol", true);
+        taroCard.setId(0);
+        return taroCard;
     }
     private TaroCardMeaning createMeaning(){
         return new TaroCardMeaning(0, "love", "job", "health", "growth", "spirit", "yseNo", "cardOfTheDay");
