@@ -12,13 +12,15 @@ public enum BotCommand {
     START("/start"),
     HELP("/help"),
     TAROS("/taros"),
+    CARD_OF_THE_DAY("/card_of_the_day"),
     DIVINATION("/div"),
-    TAROLAYOUTS("/taro_layouts"),
+    TARO_LAYOUTS("/taro_layouts"),
     CHAKRAS("/chakras"),
     ARCANES("/arcanes"),
     CATALOGUE("/catalogue"),
     STONES("/stones"),
-    ZODIACS("/zodiacs");
+    ZODIACS("/zodiacs"),
+    KABBALAH("/kabbalah");
 
     @Getter
     private final String commandText;

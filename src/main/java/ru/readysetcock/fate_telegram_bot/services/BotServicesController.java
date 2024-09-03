@@ -8,6 +8,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.readysetcock.fate_telegram_bot.messages.BotApiMethodFactory;
 import ru.readysetcock.fate_telegram_bot.messages.Response;
 import ru.readysetcock.fate_telegram_bot.services.commands.BotCommandProcessor;
+import ru.readysetcock.fate_telegram_bot.services.domain.UserService;
 import ru.readysetcock.fate_telegram_bot.services.functions.BotFunctionProcessor;
 
 import java.util.List;
@@ -15,33 +16,46 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+
 /**
  * Контроллер, распределяющий входящие запросы в сервисы.
  */
 @Service
 @Slf4j
 public class BotServicesController {
+    private final UserService userService;
+    private final UserStateController userStateController;
     private final Map<String, BotCommandProcessor> commandProcessorsMap;
     private final Map<String, BotFunctionProcessor> functionProcessorsMap;
 
-    public BotServicesController(List<BotCommandProcessor> commandProcessors, List<BotFunctionProcessor> functionProcessors) {
+    public BotServicesController(List<BotCommandProcessor> commandProcessors, List<BotFunctionProcessor> functionProcessors, UserService userService, UserStateController userStateController) {
         commandProcessorsMap = commandProcessors.stream()
                 .collect(Collectors.toMap(processor -> processor.getCommand().getCommandText(), Function.identity()));
         functionProcessorsMap = functionProcessors.stream()
                 .collect(Collectors.toMap(processor -> processor.getFunction().getFunctionName(), Function.identity()));
+        this.userService = userService;
+        this.userStateController = userStateController;
     }
 
     public Response getResponse(Update update) {
-        if (update.hasMessage() && update.getMessage().isCommand()) {
-            return processWithCommand(update.getMessage());
-        } else if (update.hasCallbackQuery()) {
-            return processWithCallbackQuery(update.getCallbackQuery());
-        } else if (update.hasMessage()) {
-            log.info("Получил хуй пойми че");
-            return createDefaultMessage(update.getMessage().getChatId());
-        } else {
-            log.warn("Пришло сообщение без message и callback - {}", update);
-            return new Response();
+        Message message = update.getMessage();
+        try {
+            return switch (UpdateType.getType(update, userService)) {
+                case STATE -> userStateController.processWithState(update);
+                case COMMAND -> processWithCommand(message);
+                case CALLBACK_QUERY -> processWithCallbackQuery(update.getCallbackQuery());
+                case MESSAGE -> {
+                    log.warn("Не смогли обработать сообщение - {}", message.getText());
+                    yield createDefaultMessage(message.getChatId());
+                }
+                case NO_MESSAGE_NO_QUERY -> {
+                    log.warn("Пришло сообщение без message и callback - {}", update);
+                    yield new Response();
+                }
+            };
+        } catch (Exception e) {
+            log.error("Произошла ошибка - {}", e,e);
+            return createServerErrorMessage(update.getMessage().getChatId());
         }
     }
 
@@ -80,5 +94,9 @@ public class BotServicesController {
 
     private Response createDefaultMessage(Long chatId) {
         return new Response(BotApiMethodFactory.textMessage(chatId, "Используй /menu для вызова меню или /help для списка команд"));
+    }
+
+    private Response createServerErrorMessage(Long chatId) {
+        return new Response(BotApiMethodFactory.textMessage(chatId, "Извините, на сервере произошла ошибка 😣"));
     }
 }

@@ -29,10 +29,10 @@ public class TaroLayoutProcessor implements BotFunctionProcessor, BotCommandProc
     private final TaroLayoutRepository repository;
 
     @Override
-    public BotFunction getFunction() { return BotFunction.TAROLAYOUTS; }
+    public BotFunction getFunction() { return BotFunction.TARO_LAYOUTS; }
 
     @Override
-    public BotCommand getCommand() { return BotCommand.TAROLAYOUTS; }
+    public BotCommand getCommand() { return BotCommand.TARO_LAYOUTS; }
 
     @Override
     public Response process(Message message) {
@@ -42,11 +42,11 @@ public class TaroLayoutProcessor implements BotFunctionProcessor, BotCommandProc
     @Override
     public Response process(CallbackQuery query) {
         String data = query.getData();
-        if (data.equals(BotFunction.TAROLAYOUTS.getFunctionName())) {
+        if (data.equals(BotFunction.TARO_LAYOUTS.getFunctionName())) {
             return editToButtonsWithLayouts(query);
-        } else if (data.startsWith(BotFunction.TAROLAYOUTS.getFunctionName() + "/id/")) {
+        } else if (data.startsWith(BotFunction.TARO_LAYOUTS.getFunctionName() + "/id/")) {
             return sendTaroLayout(query);
-        } else if (data.startsWith(BotFunction.TAROLAYOUTS.getFunctionName() + "/delete")) {
+        } else if (data.startsWith(BotFunction.TARO_LAYOUTS.getFunctionName() + "/delete")) {
             return deleteTaroLayout(query);
         }
         return new Response();
@@ -67,7 +67,7 @@ public class TaroLayoutProcessor implements BotFunctionProcessor, BotCommandProc
     }
 
     private Response sendTaroLayout(CallbackQuery query) {
-        int id = Integer.parseInt(query.getData().replace(BotFunction.TAROLAYOUTS.getFunctionName() + "/id/", ""));
+        int id = Integer.parseInt(query.getData().replace(BotFunction.TARO_LAYOUTS.getFunctionName() + "/id/", ""));
         TaroLayout taroLayout = getTaroLayoutById(id);
         if (taroLayout == null) {
             return new Response(BotApiMethodFactory.callbackQueryAnswer(query.getId()));
@@ -79,7 +79,7 @@ public class TaroLayoutProcessor implements BotFunctionProcessor, BotCommandProc
     private Response deleteOnlyLayoutResponse(TaroLayout taroLayout, CallbackQuery query) {
         SendPhoto sendPhoto = BotApiMethodFactory.messageWithPhoto(query.getMessage().getChatId(), taroLayout.getImageFileId(),
                 createTaroDescriptionMessage(taroLayout),
-                InlineKeyboardBuilder.createKeyboardOf(rowOf(button("⬅ Назад", "%s/delete".formatted(BotFunction.TAROLAYOUTS.getFunctionName())))));
+                InlineKeyboardBuilder.createKeyboardOf(rowOf(button("⬅ Назад", "%s/delete".formatted(BotFunction.TARO_LAYOUTS.getFunctionName())))));
 
         return Response.builder()
                 .photo(sendPhoto)
@@ -92,7 +92,7 @@ public class TaroLayoutProcessor implements BotFunctionProcessor, BotCommandProc
     private InlineKeyboardMarkup getAllLayoutsKeyboard() {
         List<InlineKeyboardButton> buttons = new ArrayList<>();
         repository.findAll().forEach(taroLayout -> buttons.add(button(taroLayout.getRusName(), taroLayout.getSymbol(),
-                BotFunction.TAROLAYOUTS.getFunctionName() + "/id/" + taroLayout.getId())));
+                BotFunction.TARO_LAYOUTS.getFunctionName() + "/id/" + taroLayout.getId())));
         buttons.add(button("⬅ Назад", BotFunction.CATALOGUE.getFunctionName()));
         return InlineKeyboardBuilder.createKeyboardOf(buttons);
     }
