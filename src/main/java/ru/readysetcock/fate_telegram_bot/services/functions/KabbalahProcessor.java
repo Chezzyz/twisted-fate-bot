@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import ru.readysetcock.fate_telegram_bot.messages.BotApiMethodFactory;
 import ru.readysetcock.fate_telegram_bot.messages.InlineKeyboardBuilder;
@@ -17,13 +18,14 @@ import ru.readysetcock.fate_telegram_bot.services.domain.UserService;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import static ru.readysetcock.fate_telegram_bot.messages.InlineKeyboardBuilder.button;
 import static ru.readysetcock.fate_telegram_bot.messages.InlineKeyboardBuilder.rowOf;
 
 @Service
 @RequiredArgsConstructor
-public class KabbalahProcessor implements BotCommandProcessor, BotFunctionProcessor {
+public class KabbalahProcessor implements BotCommandProcessor, BotFunctionProcessor, BotStateProcessor {
 
     private final UserService userService;
     private final KabbalahNumberService numberService;
@@ -37,6 +39,11 @@ public class KabbalahProcessor implements BotCommandProcessor, BotFunctionProces
     @Override
     public BotFunction getFunction() {
         return BotFunction.KABBALAH;
+    }
+
+    @Override
+    public Set<BotState> getStates() {
+        return Set.of(BotState.KABBALAH_QUESTION);
     }
 
     @Override
@@ -59,12 +66,24 @@ public class KabbalahProcessor implements BotCommandProcessor, BotFunctionProces
         return new Response();
     }
 
+    @Override
+    public Response processState(Update update, String data) {
+        String question = update.getMessage().getText();
+        User user = userService.findByUserId(update.getMessage().getChatId());
+        user.setState(null);
+        userService.save(user);
+        return new Response(BotApiMethodFactory.inlineKeyboardMessage(update.getMessage().getChatId(), "Ваш вопрос: %s".formatted(question),
+                InlineKeyboardBuilder.createKeyboardOf(InlineKeyboardBuilder
+                        .rowOf(InlineKeyboardBuilder.button("Да", "\uD83D\uDC4D", BotFunction.KABBALAH.getFunctionName().concat("/question")),
+                                InlineKeyboardBuilder.button("Нет", "\uD83D\uDC4E", BotFunction.KABBALAH.getFunctionName().concat("/div"))))));
+    }
+
     private Response getQuestion(CallbackQuery query) {
         Message message = query.getMessage();
         User user = userService.findByUserId(query.getMessage().getChatId());
-        user.setState(BotState.QUESTION.getStateName());
+        user.setState(BotState.KABBALAH_QUESTION.getStateName());
         userService.save(user);
-        return new Response(BotApiMethodFactory.messageEdit(message.getChatId(), message.getMessageId(), BotState.QUESTION.getText(), InlineKeyboardBuilder.createKeyboardOf(
+        return new Response(BotApiMethodFactory.messageEdit(message.getChatId(), message.getMessageId(), BotState.KABBALAH_QUESTION.getText(), InlineKeyboardBuilder.createKeyboardOf(
                 rowOf(button("⬅ Назад", BotFunction.KABBALAH.getFunctionName())))));
     }
 

@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.media.InputMediaPhoto;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import ru.readysetcock.fate_telegram_bot.formatters.LayoutFormatter;
@@ -15,7 +16,10 @@ import ru.readysetcock.fate_telegram_bot.model.domain.*;
 import ru.readysetcock.fate_telegram_bot.repository.*;
 import ru.readysetcock.fate_telegram_bot.services.domain.TaroCardMeaningService;
 import ru.readysetcock.fate_telegram_bot.services.domain.TaroCardService;
+import ru.readysetcock.fate_telegram_bot.services.domain.UserService;
 import ru.readysetcock.fate_telegram_bot.services.functions.BotFunction;
+import ru.readysetcock.fate_telegram_bot.services.functions.BotState;
+import ru.readysetcock.fate_telegram_bot.services.functions.BotStateProcessor;
 
 import java.util.*;
 import java.util.random.RandomGenerator;
@@ -25,11 +29,11 @@ import static ru.readysetcock.fate_telegram_bot.messages.InlineKeyboardBuilder.r
 
 @Service
 @RequiredArgsConstructor
-public class TaroDivinationSubprocessor implements DivinationSubprocessor {
-
+public class TaroDivinationSubprocessor implements DivinationSubprocessor, BotStateProcessor {
     private final TaroLayoutRepository taroLayoutRepository;
     private final TaroCardService taroCardService;
     private final TaroCardMeaningService meaningService;
+    private final UserService userService;
     private static final int TOPIC_ORDER_NUM = 3;
     private static final int MIN_OR_NOMIN_ORDER_NUM = 4;
     private static final int DECK_ORDER_NUM = 2;
@@ -39,6 +43,11 @@ public class TaroDivinationSubprocessor implements DivinationSubprocessor {
     @Override
     public DivinationType getDivinationType() {
         return DivinationType.TARO;
+    }
+
+    @Override
+    public Set<BotState> getStates() {
+        return Set.of(BotState.TARO_QUESTION);
     }
 
     @Override
@@ -57,6 +66,27 @@ public class TaroDivinationSubprocessor implements DivinationSubprocessor {
             return getTopics(query);
         }
         return new Response();
+    }
+
+    @Override
+    public Response processState(Update update, String data) {
+        String question = update.getMessage().getText();
+        User user = userService.findByUserId(update.getMessage().getChatId());
+        user.setState(null);
+        userService.save(user);
+        return new Response(BotApiMethodFactory.inlineKeyboardMessage(update.getMessage().getChatId(), "Ваш вопрос: %s".formatted(question),
+                InlineKeyboardBuilder.createKeyboardOf(InlineKeyboardBuilder
+                        .rowOf(InlineKeyboardBuilder.button("Да", "\uD83D\uDC4D", BotFunction.KABBALAH.getFunctionName().concat("/question")),
+                                InlineKeyboardBuilder.button("Нет", "\uD83D\uDC4E", BotFunction.KABBALAH.getFunctionName().concat("/div"))))));
+    }
+
+    private Response getQuestion(CallbackQuery query) {
+        Message message = query.getMessage();
+        User user = userService.findByUserId(query.getMessage().getChatId());
+        user.setState(BotState.TARO_QUESTION.getContextPattern().formatted(query.getData()));
+        userService.save(user);
+        return new Response(BotApiMethodFactory.messageEdit(message.getChatId(), message.getMessageId(), BotState.TARO_QUESTION.getText(), InlineKeyboardBuilder.createKeyboardOf(
+                rowOf(button("⬅ Назад", query.getData().split("/id")[0])))));
     }
 
     private Response cardReading(CallbackQuery query) {
