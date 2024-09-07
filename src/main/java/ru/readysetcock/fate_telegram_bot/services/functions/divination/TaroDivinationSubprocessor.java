@@ -79,7 +79,12 @@ public class TaroDivinationSubprocessor implements DivinationSubprocessor, BotSt
         User user = userService.findByUserId(update.getMessage().getChatId());
         user.setState(null);
         userService.save(user);
-        return new Response(BotApiMethodFactory.inlineKeyboardMessage(update.getMessage().getChatId(), "Ваш вопрос: %s".formatted(question),
+        return new Response(BotApiMethodFactory.inlineKeyboardMessage(update.getMessage().getChatId(), """
+                Ваш вопрос: %s?
+                
+                
+                После нажатия на кнопку «Да», подождите несколько секунд — мы отправляем запрос звёздам✨
+                        """.formatted(question.replace("?","")),
                 InlineKeyboardBuilder.createKeyboardOf(InlineKeyboardBuilder
                         .rowOf(InlineKeyboardBuilder.button("Да", "\uD83D\uDC4D", "%s/reading".formatted(data)),
                                 InlineKeyboardBuilder.button("Нет", "\uD83D\uDC4E", data)))));
@@ -106,7 +111,7 @@ public class TaroDivinationSubprocessor implements DivinationSubprocessor, BotSt
         Response.ResponseBuilder builder = Response.builder()
                 .methods(List.of(BotApiMethodFactory.deleteMessage(message.getChatId(), message.getMessageId()),
                         BotApiMethodFactory.inlineKeyboardMessage(message.getChatId(), formatCardReadingText(taroLayout, layoutCards, data, message.getText()),
-                                InlineKeyboardBuilder.createKeyboardOf(rowOf(button("⬅ Назад в меню", BotFunction.MENU.getFunctionName()))))));
+                                InlineKeyboardBuilder.createKeyboardOf(rowOf(button("⬅ Назад в меню", BotFunction.MENU.getFunctionName().concat("/new")))))));
         if (data.contains("id/".concat(SIMPLE_LAYOUT_ID))) {
             builder.photo(BotApiMethodFactory.messageWithPhoto(message.getChatId(), layoutCards.get(0).getImageFileId(), true));
         } else {
@@ -171,10 +176,10 @@ public class TaroDivinationSubprocessor implements DivinationSubprocessor, BotSt
         Map<String,String> prompt = new HashMap<>();
         prompt.put("system",ChatGPTConsts.TARO_DIVINATION_CHAT_GPT_SYSTEM_MESSAGE);
         prompt.put("user", """
-                Ваш вопрос: %s
+                Ваш вопрос: <b>%s</b>
                 
                 %s
-                """.formatted(message.replace("Ваш вопрос: ", "").replaceAll("[^а-яА-Яa-zA-Z0-9 ]", "").trim(),description));
+                """.formatted(message.replace("Ваш вопрос: ", "").replace("После нажатия на кнопку «Да», подождите несколько секунд — мы отправляем запрос звёздам✨", "").replaceAll("[^а-яА-Яa-zA-Z0-9? ]", "").trim(),description));
         return Objects.requireNonNull(testController.testGpt(prompt).getBody()).get(0).getMessage().getContent();
     }
 

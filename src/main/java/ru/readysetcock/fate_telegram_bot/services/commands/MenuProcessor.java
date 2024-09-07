@@ -33,7 +33,11 @@ public class MenuProcessor implements BotCommandProcessor, BotFunctionProcessor 
     @Override
     public Response process(CallbackQuery query) {
         Message message = query.getMessage();
-        return new Response(BotApiMethodFactory.messageEdit(message.getChatId(), message.getMessageId(), "Выберите функцию", createMenuKeyboard()));
+        if(query.getData().contains("/new")){
+            return new Response(BotApiMethodFactory.inlineKeyboardMessage(message.getChatId(), "Выберите функцию", createMenuKeyboard()));
+        } else {
+            return new Response(BotApiMethodFactory.messageEdit(message.getChatId(), message.getMessageId(), "Выберите функцию", createMenuKeyboard()));
+        }
     }
 
     private InlineKeyboardMarkup createMenuKeyboard() {
