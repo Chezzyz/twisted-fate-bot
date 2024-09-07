@@ -7,6 +7,8 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.media.InputMediaPhoto;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+import ru.readysetcock.fate_telegram_bot.consts.ChatGPTConsts;
+import ru.readysetcock.fate_telegram_bot.controllers.TestController;
 import ru.readysetcock.fate_telegram_bot.formatters.LayoutFormatter;
 import ru.readysetcock.fate_telegram_bot.messages.BotApiMethodFactory;
 import ru.readysetcock.fate_telegram_bot.messages.InlineKeyboardBuilder;
@@ -34,6 +36,7 @@ public class TaroDivinationSubprocessor implements DivinationSubprocessor, BotSt
     private final TaroCardService taroCardService;
     private final TaroCardMeaningService meaningService;
     private final UserService userService;
+    private final TestController testController;
     private static final int TOPIC_ORDER_NUM = 3;
     private static final int MIN_OR_NOMIN_ORDER_NUM = 4;
     private static final int DECK_ORDER_NUM = 2;
@@ -53,8 +56,10 @@ public class TaroDivinationSubprocessor implements DivinationSubprocessor, BotSt
     @Override
     public Response process(CallbackQuery query) {
         String data = query.getData();
-        if (data.contains("/id/")) {
+        if (data.contains("/reading")) {
             return cardReading(query);
+        } else if (data.contains("/id/")) {
+            return getQuestion(query);
         } else if (data.contains("min")) {
             return getLayouts(query);
         } else if (data.contains("/dwt") || data.contains("/spirit")) {
@@ -76,8 +81,8 @@ public class TaroDivinationSubprocessor implements DivinationSubprocessor, BotSt
         userService.save(user);
         return new Response(BotApiMethodFactory.inlineKeyboardMessage(update.getMessage().getChatId(), "Ваш вопрос: %s".formatted(question),
                 InlineKeyboardBuilder.createKeyboardOf(InlineKeyboardBuilder
-                        .rowOf(InlineKeyboardBuilder.button("Да", "\uD83D\uDC4D", BotFunction.KABBALAH.getFunctionName().concat("/question")),
-                                InlineKeyboardBuilder.button("Нет", "\uD83D\uDC4E", BotFunction.KABBALAH.getFunctionName().concat("/div"))))));
+                        .rowOf(InlineKeyboardBuilder.button("Да", "\uD83D\uDC4D", "%s/reading".formatted(data)),
+                                InlineKeyboardBuilder.button("Нет", "\uD83D\uDC4E", data)))));
     }
 
     private Response getQuestion(CallbackQuery query) {
@@ -100,7 +105,7 @@ public class TaroDivinationSubprocessor implements DivinationSubprocessor, BotSt
         List<TaroCard> layoutCards = getLayoutCards(data, taroLayout);
         Response.ResponseBuilder builder = Response.builder()
                 .methods(List.of(BotApiMethodFactory.deleteMessage(message.getChatId(), message.getMessageId()),
-                        BotApiMethodFactory.inlineKeyboardMessage(message.getChatId(), formatCardReadingText(taroLayout, layoutCards, data),
+                        BotApiMethodFactory.inlineKeyboardMessage(message.getChatId(), formatCardReadingText(taroLayout, layoutCards, data, message.getText()),
                                 InlineKeyboardBuilder.createKeyboardOf(rowOf(button("⬅ Назад в меню", BotFunction.MENU.getFunctionName()))))));
         if (data.contains("id/".concat(SIMPLE_LAYOUT_ID))) {
             builder.photo(BotApiMethodFactory.messageWithPhoto(message.getChatId(), layoutCards.get(0).getImageFileId(), true));
@@ -138,7 +143,7 @@ public class TaroDivinationSubprocessor implements DivinationSubprocessor, BotSt
         return layoutCards;
     }
 
-    private String formatCardReadingText(TaroLayout taroLayout, List<TaroCard> layoutCards, String data) {
+    private String formatCardReadingText(TaroLayout taroLayout, List<TaroCard> layoutCards, String data, String message) {
         String topicName = data.split("/")[TOPIC_ORDER_NUM];
         List<String> descriprionsList = new ArrayList<>();
         descriprionsList.add("""
@@ -162,7 +167,15 @@ public class TaroDivinationSubprocessor implements DivinationSubprocessor, BotSt
                     topicName.equals("decision") || topicName.equals("dwt") ? layoutCards.get(i).getDescription() : taroCardMeaning.getMeaningByTopic(topicName));
             descriprionsList.add(s);
         }
-        return String.join("", descriprionsList);
+        String description = String.join("", descriprionsList);
+        Map<String,String> prompt = new HashMap<>();
+        prompt.put("system",ChatGPTConsts.TARO_DIVINATION_CHAT_GPT_SYSTEM_MESSAGE);
+        prompt.put("user", """
+                Ваш вопрос: %s
+                
+                %s
+                """.formatted(message.replace("Ваш вопрос: ", "").replaceAll("[^а-яА-Яa-zA-Z0-9 ]", "").trim(),description));
+        return Objects.requireNonNull(testController.testGpt(prompt).getBody()).get(0).getMessage().getContent();
     }
 
     private Response getMajorOrMinorKeyboard(CallbackQuery query) {
@@ -212,7 +225,6 @@ public class TaroDivinationSubprocessor implements DivinationSubprocessor, BotSt
         buttons.add(button("⬅ Назад", "%s/%s".formatted(BotFunction.DIVINATION, DivinationType.TARO)));
         return new Response(BotApiMethodFactory.messageEdit(message.getChatId(), message.getMessageId(),
                 """
-                        \uD83E\uDD14<b>Перед тем как выбрать расклад, задайте вопрос у себя в голове</b>\uD83E\uDD14
                                                 
                         Выберите расклад (для подробной информации о раскладах нажмите /taro_layouts )""",
                 InlineKeyboardBuilder.createKeyboardOf(buttons)));
