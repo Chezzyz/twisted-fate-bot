@@ -6,9 +6,7 @@ import com.theokanning.openai.completion.chat.ChatMessage;
 import com.theokanning.openai.service.OpenAiService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.ArrayList;
@@ -17,13 +15,12 @@ import java.util.Map;
 
 @Controller
 @RequiredArgsConstructor
-public class TestController {
+public class ChatGptService {
 
     @Value("${chatgpt.api.key}")
     public String gptApiKey;
 
-    @GetMapping("/test")
-    public ResponseEntity<List<ChatCompletionChoice>> testGpt(@RequestBody Map<String, String> prompt) {
+    public List<ChatCompletionChoice> sendToGpt(@RequestBody Map<String, String> prompt) {
         OpenAiService openAiService = new OpenAiService(gptApiKey);
         List<ChatMessage> messages = new ArrayList<>();
         for (Map.Entry<String, String> entry : prompt.entrySet()) {
@@ -38,8 +35,5 @@ public class TestController {
                 .messages(messages)
                 .build();
 
-        List<ChatCompletionChoice> result = new ArrayList<>(openAiService.createChatCompletion(request).getChoices());
-
-        return ResponseEntity.ok(result);
-    }
+        return new ArrayList<>(openAiService.createChatCompletion(request).getChoices());}
 }

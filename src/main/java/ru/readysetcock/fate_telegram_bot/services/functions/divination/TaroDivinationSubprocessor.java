@@ -1,6 +1,8 @@
 package ru.readysetcock.fate_telegram_bot.services.functions.divination;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
@@ -8,7 +10,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.media.InputMediaPhoto;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import ru.readysetcock.fate_telegram_bot.consts.ChatGPTConsts;
-import ru.readysetcock.fate_telegram_bot.controllers.TestController;
+import ru.readysetcock.fate_telegram_bot.controllers.ChatGptService;
 import ru.readysetcock.fate_telegram_bot.formatters.LayoutFormatter;
 import ru.readysetcock.fate_telegram_bot.messages.BotApiMethodFactory;
 import ru.readysetcock.fate_telegram_bot.messages.InlineKeyboardBuilder;
@@ -29,6 +31,7 @@ import java.util.random.RandomGenerator;
 import static ru.readysetcock.fate_telegram_bot.messages.InlineKeyboardBuilder.button;
 import static ru.readysetcock.fate_telegram_bot.messages.InlineKeyboardBuilder.rowOf;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TaroDivinationSubprocessor implements DivinationSubprocessor, BotStateProcessor {
@@ -36,7 +39,7 @@ public class TaroDivinationSubprocessor implements DivinationSubprocessor, BotSt
     private final TaroCardService taroCardService;
     private final TaroCardMeaningService meaningService;
     private final UserService userService;
-    private final TestController testController;
+    private final ChatGptService chatGptService;
     private static final int TOPIC_ORDER_NUM = 3;
     private static final int MIN_OR_NOMIN_ORDER_NUM = 4;
     private static final int DECK_ORDER_NUM = 2;
@@ -158,6 +161,7 @@ public class TaroDivinationSubprocessor implements DivinationSubprocessor, BotSt
                 %s%s%s
                                 
                 """.formatted(DivinationTopic.getRusNameByFunctionName(topicName), taroLayout.getSymbol(), taroLayout.getRusName(), taroLayout.getSymbol()));
+
         for (int i = 0; i < taroLayout.getNumberOfCards(); i++) {
             String[] layoutPositionText = taroLayout.getSchemeInfo().split("&")[i].split("\\.");
             TaroCardMeaning taroCardMeaning = meaningService.findById(layoutCards.get(i).getId());
@@ -172,15 +176,30 @@ public class TaroDivinationSubprocessor implements DivinationSubprocessor, BotSt
                     topicName.equals("decision") || topicName.equals("dwt") ? layoutCards.get(i).getDescription() : taroCardMeaning.getMeaningByTopic(topicName));
             descriprionsList.add(s);
         }
+
         String description = String.join("", descriprionsList);
+        Map<String, String> prompt = createDivinationPrompt(message, description);
+        try {
+            return Objects.requireNonNull(chatGptService.sendToGpt(prompt)).get(0).getMessage().getContent();
+        } catch (Exception e) {
+            log.error("ChatGPT вернул ошибку, отправляем обычный ответ", e);
+            return description;
+        }
+    }
+
+    @NotNull
+    private static Map<String, String> createDivinationPrompt(String message, String description) {
         Map<String,String> prompt = new HashMap<>();
         prompt.put("system",ChatGPTConsts.TARO_DIVINATION_CHAT_GPT_SYSTEM_MESSAGE);
+        String question = message.replace("Ваш вопрос: ", "")
+                .replace("После нажатия на кнопку «Да», подождите несколько секунд — мы отправляем запрос звёздам✨", "")
+                .replaceAll("[^а-яА-Яa-zA-Z0-9? ]", "").trim();
         prompt.put("user", """
                 Ваш вопрос: <b>%s</b>
                 
                 %s
-                """.formatted(message.replace("Ваш вопрос: ", "").replace("После нажатия на кнопку «Да», подождите несколько секунд — мы отправляем запрос звёздам✨", "").replaceAll("[^а-яА-Яa-zA-Z0-9? ]", "").trim(),description));
-        return Objects.requireNonNull(testController.testGpt(prompt).getBody()).get(0).getMessage().getContent();
+                """.formatted(question, description));
+        return prompt;
     }
 
     private Response getMajorOrMinorKeyboard(CallbackQuery query) {
