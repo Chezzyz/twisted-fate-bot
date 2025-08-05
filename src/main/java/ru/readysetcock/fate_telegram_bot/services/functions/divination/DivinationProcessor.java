@@ -82,7 +82,7 @@ public class DivinationProcessor implements BotFunctionProcessor, BotCommandProc
                 rowOf(button("\uD83D\uDD12 Гадание на рунах", "\uD83C\uDC04", "%s/%s".formatted(DIVINATION, DivinationType.RUNES))),
                 rowOf(button("\uD83D\uDD12 Гадание на книгах", "\uD83D\uDCDA", "%s/%s".formatted(DIVINATION, DivinationType.BOOKS))),
                 rowOf(button("\uD83D\uDD12 Гадание на небесных телах", "\uD83C\uDF0C", "%s/%s".formatted(DIVINATION, DivinationType.CELESTIAL))),
-                rowOf(button("⬅ Назад", "menu")));
+                rowOf(button("⬅ Назад", BotFunction.MENU.getFunctionName())));
     }
 
     private Response createNotImplementedCallbackQueryAnswer(String queryId) {

@@ -10,7 +10,10 @@ import ru.readysetcock.fate_telegram_bot.messages.Response;
 import ru.readysetcock.fate_telegram_bot.services.commands.BotCommandProcessor;
 import ru.readysetcock.fate_telegram_bot.services.domain.UserService;
 import ru.readysetcock.fate_telegram_bot.services.functions.BotFunctionProcessor;
+import ru.readysetcock.fate_telegram_bot.services.functions.BotState;
+import ru.readysetcock.fate_telegram_bot.services.functions.BotStateProcessor;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -24,24 +27,30 @@ import java.util.stream.Collectors;
 @Slf4j
 public class BotServicesController {
     private final UserService userService;
-    private final UserStateController userStateController;
     private final Map<String, BotCommandProcessor> commandProcessorsMap;
     private final Map<String, BotFunctionProcessor> functionProcessorsMap;
+    private final Map<String, BotStateProcessor> stateProcessorsMap;
 
-    public BotServicesController(List<BotCommandProcessor> commandProcessors, List<BotFunctionProcessor> functionProcessors, UserService userService, UserStateController userStateController) {
+    public BotServicesController(List<BotCommandProcessor> commandProcessors,
+                                 List<BotFunctionProcessor> functionProcessors,
+                                 List<BotStateProcessor> stateProcessors,
+                                 UserService userService) {
         commandProcessorsMap = commandProcessors.stream()
                 .collect(Collectors.toMap(processor -> processor.getCommand().getCommandText(), Function.identity()));
         functionProcessorsMap = functionProcessors.stream()
                 .collect(Collectors.toMap(processor -> processor.getFunction().getFunctionName(), Function.identity()));
+        stateProcessorsMap = new HashMap<>();
+        for (BotStateProcessor processor : stateProcessors) {
+            processor.getStates().forEach(state -> stateProcessorsMap.put(state.getStateName(), processor));
+        }
         this.userService = userService;
-        this.userStateController = userStateController;
     }
 
     public Response getResponse(Update update) {
         Message message = update.getMessage();
         try {
             return switch (UpdateType.getType(update, userService)) {
-                case STATE -> userStateController.processWithState(update);
+                case STATE -> processWithState(update);
                 case COMMAND -> processWithCommand(message);
                 case CALLBACK_QUERY -> processWithCallbackQuery(update.getCallbackQuery());
                 case MESSAGE -> {
@@ -54,7 +63,7 @@ public class BotServicesController {
                 }
             };
         } catch (Exception e) {
-            log.error("Произошла ошибка - {}", e,e);
+            log.error("Произошла ошибка - {}", e, e);
             return createServerErrorMessage(update.getMessage().getChatId());
         }
     }
@@ -81,6 +90,24 @@ public class BotServicesController {
         } else {
             log.warn("Получил callback неизвестной функции '{}'", data);
             return createNotImplementedCallbackQueryAnswer(query.getId());
+        }
+    }
+
+    private Response processWithState(Update update) {
+        String userState = userService.findByUserId(update.getMessage().getChatId()).getState();
+        BotState botState = BotState.getByUserState(userState);
+        if (botState == null) {
+            log.warn("Неизвестный state '{}'", userState);
+            return createServerErrorMessage(update.getMessage().getChatId());
+        }
+
+        BotStateProcessor processor = stateProcessorsMap.get(botState.getStateName());
+        if (processor != null) {
+            log.info("Получил state '{}', отправляю в {}", userState, processor.getClass().getSimpleName());
+            return processor.processState(update, BotState.retrieveData(userState));
+        } else {
+            log.warn("Для state '{}' нет процессора", userState);
+            return createServerErrorMessage(update.getMessage().getChatId());
         }
     }
 

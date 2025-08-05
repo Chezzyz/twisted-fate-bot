@@ -6,17 +6,23 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public enum BotState {
-    QUESTION("question", "Введите свой вопрос");
+    KABBALAH_QUESTION("kabbalah question", "Введите свой вопрос", ""),
+    TARO_QUESTION("taro question", "Введите свой вопрос", "taro question '%s'");
 
     private final String stateName;
     private final String text;
+    private final String contextPattern;
 
-    public static BotState getByStateName(String stateName) {
+    public static BotState getByUserState(String userState) {
         for (BotState botState : BotState.values()) {
-            if (botState.getStateName().equalsIgnoreCase(stateName)) {
+            if (userState.toLowerCase().contains(botState.stateName)) {
                 return botState;
             }
         }
         return null;
+    }
+
+    public static String retrieveData(String userState) {
+        return userState.split("'")[1];
     }
 }
